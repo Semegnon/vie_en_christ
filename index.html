@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Mes Fondements en Christ</title>
+<meta name="description" content="Application de méditation biblique quotidienne - 7 piliers de la vie en Christ">
+<meta name="theme-color" content="#0A0A0A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap');
+
+/* ===== VARIABLES STYLE AIRBNB SOMBRE (DÉFAUT) ===== */
+:root {
+  --bg-primary: #0A0A0A;
+  --bg-secondary: #161616;
+  --bg-card: #1A1A1A;
+  --bg-card-hover: #262626;
+  --text-primary: #FFFFFF;
+  --text-secondary: #B0B0B0;
+  --text-muted: #717171;
+  --accent-gold: #E0A96D;
+  --accent-gold-dim: rgba(224,169,109,0.15);
+  --border: rgba(255,255,255,0.08);
+  --border-active: rgba(224,169,109,0.4);
+  --shadow: 0 4px 20px rgba(0,0,0,0.5);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --transition: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --verse-font-size: 16px; /* Taille dynamique */
+}
+
+/* ===== VARIABLES STYLE AIRBNB LUMINEUX ===== */
+[data-theme="light"] {
+  --bg-primary: #F7F7F7;
+  --bg-secondary: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F1F1F1;
+  --text-primary: #1A1A1A;
+  --text-secondary: #5A5A5A;
+  --text-muted: #8A8A8A;
+  --accent-gold: #B87333; /* Terracotta / Or ambré */
+  --accent-gold-dim: rgba(184,115,51,0.1);
+  --border: rgba(0,0,0,0.08);
+  --border-active: rgba(184,115,51,0.4);
+  --shadow: 0 4px 20px rgba(0,0,0,0.06);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ===== MENU LATÉRAL (SIDEBAR) ===== */
+.menu-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  z-index: 200; opacity: 0; pointer-events: none; transition: opacity var(--transition);
+}
+.menu-overlay.open { opacity: 1; pointer-events: auto; }
+
+.sidebar {
+  position: fixed; top: 0; bottom: 0; left: -280px; width: 280px;
+  background: var(--bg-secondary); z-index: 201; box-shadow: var(--shadow);
+  transition: transform var(--transition); display: flex; flex-direction: column;
+}
+.sidebar.open { transform: translateX(280px); }
+
+.sidebar-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 20px; border-bottom: 1px solid var(--border);
+}
+.sidebar-header h3 { font-size: 16px; color: var(--accent-gold); }
+
+.sidebar-menu-items {
+  padding: 16px 12px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto;
+}
+.sidebar-tab-btn {
+  padding: 14px 16px; border-radius: var(--radius-sm); border: none;
+  background: transparent; color: var(--text-secondary); text-align: left;
+  font-size: 14px; font-weight: 500; cursor: pointer; transition: var(--transition);
+}
+.sidebar-tab-btn.active {
+  background: var(--accent-gold-dim); color: var(--accent-gold); font-weight: 700;
+}
+
+/* ===== EN-TÊTE ÉPURÉ ===== */
+.app-header {
+  position: sticky; top: 0; z-index: 100; background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border); padding-top: env(safe-area-inset-top, 0);
+}
+.header-top {
+  display: flex; align-items: center; justify-content: space-between; padding: 12px 16px;
+}
+.header-left { display: flex; align-items: center; gap: 12px; }
+.app-title { font-size: 16px; font-weight: 700; color: var(--accent-gold); letter-spacing: 0.2px; }
+
+.header-controls { display: flex; gap: 8px; align-items: center; }
+.icon-btn {
+  width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--border);
+  background: transparent; color: var(--text-secondary); display: flex;
+  align-items: center; justify-content: center; cursor: pointer; font-size: 16px;
+  transition: var(--transition);
+}
+.icon-btn:active { background: var(--bg-card-hover); transform: scale(0.95); }
+
+/* ===== CONTRÔLES (MODE & VERSION) ===== */
+.controls-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px; gap: 10px; max-width: 800px; margin: 0 auto;
+}
+.toggle-group {
+  display: flex; background: var(--bg-secondary); border-radius: 12px;
+  border: 1px solid var(--border); overflow: hidden; padding: 4px;
+}
+.toggle-btn {
+  padding: 8px 16px; border: none; background: transparent; border-radius: 8px;
+  color: var(--text-muted); font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: var(--transition);
+}
+.toggle-btn.active {
+  background: var(--bg-card); color: var(--text-primary); box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* ===== CONTENU DYNAMIQUE (ZÉRO DÉBORDEMENT) ===== */
+.main-content {
+  padding: 0 16px 120px; max-width: 800px; margin: 0 auto;
+  display: flex; flex-direction: column; flex-grow: 1;
+}
+
+.theme-title { font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+.section-label { font-size: 12px; font-weight: 700; color: var(--accent-gold); text-transform: uppercase; margin: 16px 0 10px; }
+
+.progress-info { display: flex; align-items: center; gap: 12px; margin: 6px 0 20px; }
+.progress-bar-bg { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: var(--accent-gold); border-radius: 3px; transition: width 0.4s ease; }
+.progress-text { font-size: 12px; color: var(--text-secondary); font-weight: 600; }
+
+.verse-card, .proclamation-card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 24px; margin-bottom: 16px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; min-height: 200px; /* S'adapte au texte long */
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.verse-ref, .proclamation-number {
+  font-size: 13px; font-weight: 700; color: var(--accent-gold); margin-bottom: 16px; text-transform: uppercase;
+}
+
+/* Texte Normal (Sans Italique) et aligné à Gauche */
+.verse-text, .proclamation-text {
+  font-family: 'Merriweather', serif;
+  font-size: var(--verse-font-size);
+  line-height: 1.6;
+  color: var(--text-primary);
+  font-style: normal;
+  text-align: left; 
+}
+.verse-text em { color: var(--accent-gold); font-weight: 700; font-style: normal; }
+
+.version-badge {
+  align-self: flex-start; font-size: 11px; font-weight: 600; color: var(--text-muted);
+  background: var(--bg-secondary); padding: 4px 10px; border-radius: 6px; margin-top: 20px;
+}
+
+/* ===== BOUTONS D'ACTION ===== */
+.action-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-secondary);
+  border-top: 1px solid var(--border); padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0));
+  display: flex; justify-content: center; z-index: 100;
+}
+.action-bar-inner { display: flex; gap: 12px; max-width: 800px; width: 100%; }
+
+.btn-read {
+  flex: 1; padding: 16px; border-radius: var(--radius-sm); border: none;
+  background: var(--text-primary); color: var(--bg-primary); font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: var(--transition);
+}
+.btn-read:active { transform: scale(0.97); }
+
+.btn-nav {
+  width: 54px; height: 54px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: var(--bg-card); color: var(--text-primary); font-size: 18px; cursor: pointer; transition: var(--transition);
+}
+.btn-nav:active { background: var(--bg-card-hover); }
+
+/* ===== MEDIA QUERIES (PAYSAGE / LANDSCAPE) ===== */
+@media (orientation: landscape) and (max-height: 600px) {
+  .main-content { padding-bottom: 90px; }
+  .verse-card, .proclamation-card { padding: 20px 40px; min-height: auto; }
+  .action-bar { padding: 10px 16px; }
+  .btn-nav { width: 44px; height: 44px; }
+  .btn-read { padding: 12px; }
+}
+
+/* Toast & Modal simplifiés */
+.toast {
+  position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--text-primary); color: var(--bg-primary); padding: 12px 24px;
+  border-radius: 30px; font-size: 14px; font-weight: 600; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 150;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.modal { background: var(--bg-secondary); border-radius: var(--radius); width: 100%; max-width: 400px; padding: 24px; box-shadow: var(--shadow); }
+.modal h3 { color: var(--text-primary); margin-bottom: 20px; font-size: 18px; }
+.modal-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--text-secondary); }
+.modal-item strong { color: var(--text-primary); }
+.modal-close { width: 100%; padding: 14px; margin-top: 20px; border-radius: var(--radius-sm); border: none; background: var(--bg-card-hover); color: var(--text-primary); font-weight: 600; cursor: pointer; }
+.reset-link { display: block; text-align: center; margin-top: 16px; font-size: 12px; color: var(--text-muted); text-decoration: underline; background: none; border: none; width: 100%; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<div class="menu-overlay" id="menuOverlay"></div>
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h3>Piliers</h3>
+    <button class="icon-btn" id="closeMenuBtn">✕</button>
+  </div>
+  <div id="sidebarTabsContainer" class="sidebar-menu-items"></div>
+</div>
+
+<div class="app-header">
+  <div class="header-top">
+    <div class="header-left">
+      <button class="icon-btn" id="menuBtn">☰</button>
+      <div class="app-title">Mes Fondements</div>
+    </div>
+    <div class="header-controls">
+      <button class="icon-btn" id="fontDecBtn" style="font-size:14px; font-weight:bold;">A-</button>
+      <button class="icon-btn" id="fontIncBtn" style="font-size:16px; font-weight:bold;">A+</button>
+      <button class="icon-btn" id="statsBtn">📊</button>
+      <button class="icon-btn" id="themeBtn">🌙</button>
+    </div>
+  </div>
+</div>
+
+<div class="controls-bar">
+  <div class="toggle-group" id="modeToggle">
+    <button class="toggle-btn active" data-mode="versets">📖 Versets</button>
+    <button class="toggle-btn" data-mode="proclamations">📢 Proclamations</button>
+  </div>
+  <div class="toggle-group" id="versionToggle">
+    <button class="toggle-btn active" data-version="lsg21">LSG21</button>
+    <button class="toggle-btn" data-version="semeur">Semeur</button>
+  </div>
+</div>
+
+<div class="main-content" id="mainContent"></div>
+
+<div class="action-bar">
+  <div class="action-bar-inner">
+    <button class="btn-nav" id="prevBtn">◀</button>
+    <button class="btn-read" id="readBtn">✓ Lu — Suivant</button>
+    <button class="btn-nav" id="nextBtn">▶</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// =====================================================
+// DATA — LES 7 PILIERS COMPLETS
+// =====================================================
+const TABS_DATA = [
+// ─── ONGLET 1: IDENTITÉ EN CHRIST ───
+{
+  id:"identite", short:"Identité en Christ",
+  full:"Ce que le croyant est désormais en Jésus",
+  sections:[
+    {title:"La trajectoire « avec lui »", verses:[
+      {ref:"Galates 2.20",lsg21:"« J'ai été crucifié avec Christ ; ce n'est plus moi qui vis, c'est Christ qui vit en moi. Ma vie présente dans le corps, je la vis dans la foi au Fils de Dieu qui m'a aimé et qui s'est donné lui-même pour moi. »",semeur:"« J'ai été crucifié avec Christ ; ce n'est plus moi qui vis, c'est le Christ qui vit en moi. Ma vie en tant qu'homme, je la vis maintenant dans la foi au Fils de Dieu qui, par amour pour moi, s'est livré à la mort à ma place. »"},
+      {ref:"Romains 6.6",lsg21:"« Nous savons que notre vieil homme a été crucifié avec lui afin que le corps du péché soit réduit à l'impuissance et qu'ainsi nous ne soyons plus esclaves du péché. »",semeur:"« Voici ce que nous savons : l'homme que nous étions autrefois a été crucifié avec le Christ, pour que notre être pécheur soit réduit à l'impuissance et que nous ne soyons plus esclaves du péché. »"},
+      {ref:"Romains 6.4",lsg21:"« Par le baptême en sa mort nous avons donc été ensevelis avec lui afin que, comme Christ est ressuscité par la gloire du Père, de même nous aussi nous menions une vie nouvelle. »",semeur:"« Par le baptême, nous avons donc été mis au tombeau avec lui pour être associés à sa mort, afin que, comme le Christ a été ressuscité par la puissance glorieuse du Père, nous aussi, nous menions une vie nouvelle. »"},
+      {ref:"Romains 6.8",lsg21:"« Or, si nous sommes morts avec Christ, nous croyons que nous vivrons aussi avec lui. »",semeur:"« Si nous sommes morts avec le Christ, nous croyons que nous vivrons aussi avec lui. »"},
+      {ref:"2 Timothée 2.11",lsg21:"« Cette parole est certaine : si nous sommes morts avec lui, nous vivrons aussi avec lui ; si nous persévérons, nous régnerons aussi avec lui. »",semeur:"« Voici une parole certaine : Si nous mourons avec lui, avec lui nous vivrons. Si nous persévérons, avec lui nous régnerons. »"},
+      {ref:"Colossiens 2.12",lsg21:"« Vous avez été ensevelis avec lui par le baptême et vous êtes aussi ressuscités en lui et avec lui, par la foi en la puissance du Dieu qui l'a ressuscité. »",semeur:"« Par le baptême, vous avez été ensevelis avec le Christ ; avec lui, vous avez été ressuscités, parce que vous avez cru en la puissance de Dieu qui l'a ressuscité. »"},
+      {ref:"Colossiens 2.13",lsg21:"« Vous qui étiez morts en raison de vos fautes et de l'incirconcision de votre corps, il vous a rendus à la vie avec lui. Il nous a pardonné toutes nos fautes. »",semeur:"« Vous qui étiez morts à cause de vos péchés et parce que vous étiez des incirconcis, des païens, Dieu vous a donné la vie avec le Christ. Il nous a pardonné toutes nos fautes. »"},
+      {ref:"Éphésiens 2.5-6",lsg21:"« Nous étions morts en raison de nos fautes, [mais] il nous a rendus à la vie avec Christ — c'est par grâce que vous êtes sauvés —, il nous a ressuscités et fait asseoir avec lui dans les lieux célestes, en Jésus-Christ. »",semeur:"« Oui, alors que nous étions morts à cause de nos fautes, il nous a rendus à la vie avec le Christ. C'est par la grâce que vous êtes sauvés. Il nous a ressuscités avec le Christ et nous a fait siéger avec lui dans le monde céleste, dans l'union avec Jésus-Christ. »"},
+      {ref:"Colossiens 3.1-3",lsg21:"« Si donc vous êtes ressuscités avec Christ, recherchez les choses d'en haut, où Christ est assis à la droite de Dieu. Attachez-vous aux réalités d'en haut, et non à celles qui sont sur la terre. En effet, vous êtes morts et votre vie est cachée avec Christ en Dieu. »",semeur:"« Puisque vous êtes ressuscités avec le Christ, recherchez les réalités d'en haut, là où se trouve le Christ, qui siège à la droite de Dieu. De toute votre pensée, tendez vers les réalités d'en haut, non vers celles qui appartiennent à la terre. Car vous êtes morts, et votre vie est cachée avec le Christ en Dieu. »"},
+      {ref:"Colossiens 2.15",lsg21:"« Il a dépouillé les dominations et les autorités et les a données publiquement en spectacle en triomphant d'elles par la croix. »",semeur:"« Il a désarmé les autorités et les puissances surnaturelles et les a données en spectacle à la face du monde, en triomphant d'elles par la croix. »"},
+      {ref:"Éphésiens 1.19-22",lsg21:"« Quelle est l'infinie grandeur de sa puissance, qu'il a manifestée en notre faveur, à nous qui croyons, conformément à l'action de sa force toute-puissante. Il l'a déployée en Christ quand il l'a ressuscité et l'a fait asseoir à sa droite dans les lieux célestes, au-dessus de toute domination, de toute autorité, de toute puissance, de toute souveraineté et de tout nom qui peut être nommé, non seulement dans le temps présent, mais encore dans le temps à venir. Il a tout mis sous ses pieds et l'a donné pour chef suprême à l'Église. »",semeur:"« Quelle est l'extraordinaire grandeur de la puissance qu'il met en œuvre en notre faveur, à nous qui plaçons notre confiance en lui. Cette puissance, il l'a déployée dans toute sa force en la faisant agir dans le Christ quand il l'a ressuscité et l'a fait siéger à sa droite dans le monde céleste, au-dessus de toute Autorité, de toute Puissance, de toute Domination et de toute Souveraineté, au-dessus de tout nom qui puisse être cité, non seulement dans le monde présent mais aussi dans le monde à venir. Dieu a tout placé sous ses pieds, et ce Christ qui domine tout, il l'a donné pour chef à l'Église. »"}
+    ]},
+    {title:"La nouvelle création", verses:[
+      {ref:"2 Corinthiens 5.17",lsg21:"« Si quelqu'un est en Christ, il est une nouvelle créature. Les choses anciennes sont passées ; voici, toutes choses sont devenues nouvelles. »",semeur:"« Si quelqu'un est en Christ, il est une nouvelle créature. Ce qui est ancien a disparu, et voici : ce qui est nouveau est là. »"},
+      {ref:"2 Pierre 1.4",lsg21:"« Celles-ci nous assurent les plus grandes et les plus précieuses promesses. Ainsi, grâce à elles, vous pouvez fuir la corruption qui existe dans le monde par la convoitise et devenir participants de la nature divine. »",semeur:"« C'est ainsi qu'il nous a accordé les dons si précieux et si grands qu'il nous avait promis, pour que, par ces dons, vous deveniez participants de la nature divine, en fuyant la corruption qui règne dans le monde par la convoitise. »"},
+      {ref:"Éphésiens 2.10",lsg21:"« En réalité, c'est lui qui nous a faits ; nous avons été créés en Jésus-Christ pour des œuvres bonnes que Dieu a préparées d'avance afin que nous les pratiquions. »",semeur:"« Ce que nous sommes, nous le devons à Dieu ; car par notre union avec Jésus-Christ, Dieu nous a créés pour une vie riche d'œuvres bonnes qu'il a préparées à l'avance pour que nous les accomplissions. »"},
+      {ref:"Éphésiens 4.24",lsg21:"« Et à revêtir l'homme nouveau, créé selon Dieu dans la justice et la sainteté que produit la vérité. »",semeur:"« Et à vous revêtir de l'homme nouveau, créé conformément à la pensée de Dieu, pour mener la vie juste et sainte que produit la vérité. »"},
+      {ref:"Galates 6.15",lsg21:"« En effet, [en Jésus-Christ] ce qui a de l'importance, ce n'est ni la circoncision ni l'incirconcision, mais c'est le fait d'être une nouvelle créature. »",semeur:"« Car ce qui compte, ce n'est ni la circoncision ni l'incirconcision, mais c'est d'être une nouvelle créature. »"},
+      {ref:"1 Jean 3.1",lsg21:"« Voyez quel amour le Père nous a témoigné pour que nous soyons appelés enfants de Dieu ! Et nous le sommes vraiment ! Si le monde ne vous connaît pas, c'est qu'il ne l'a pas connu, lui. »",semeur:"« Voyez combien le Père nous a aimés : il nous a appelés enfants de Dieu, et c'est ce que nous sommes ! Si le monde ne nous reconnaît pas, c'est parce qu'il ne l'a pas reconnu, lui. »"}
+    ]},
+    {title:"L'échange — il a pris pour me donner", verses:[
+      {ref:"2 Corinthiens 5.21",lsg21:"« Celui qui n'a pas connu le péché, il l'a fait devenir péché pour nous afin qu'en lui nous devenions justice de Dieu. »",semeur:"« Celui qui n'a pas connu le péché, Dieu l'a fait devenir péché pour nous, afin que, dans l'union avec le Christ, nous devenions justice de Dieu. »"},
+      {ref:"1 Pierre 2.24",lsg21:"« Il a lui-même porté nos péchés dans son corps à la croix afin que, libérés du péché, nous vivions pour la justice. C'est par ses blessures que vous avez été guéris. »",semeur:"« Il a porté nos péchés dans son corps sur le bois de la croix, afin que, libérés du péché, nous menions une vie juste. Oui, c'est par ses meurtrissures que vous avez été guéris. »"},
+      {ref:"Galates 3.13",lsg21:"« Christ nous a rachetés de la malédiction de la loi en devenant malédiction pour nous, puisqu'il est écrit : Tout homme pendu au bois est maudit. »",semeur:"« Mais le Christ nous a rachetés de la malédiction de la Loi en prenant la malédiction sur lui à notre place. Il est, en effet, écrit : Maudit est quiconque est pendu au bois. »"},
+      {ref:"Ésaïe 53.4-5",lsg21:"« Pourtant, ce sont nos souffrances qu'il a portées, c'est de nos douleurs qu'il s'est chargé. Et nous, nous l'avons considéré comme puni, frappé par Dieu et humilié. Mais lui, il était blessé à cause de nos transgressions, brisé à cause de nos fautes : la punition qui nous donne la paix est tombée sur lui, et c'est par ses blessures que nous sommes guéris. »",semeur:"« Pourtant, en fait, c'étaient nos maladies qu'il portait, et nos souffrances dont il s'était chargé. Et nous, nous pensions que Dieu l'avait puni, frappé et humilié. Mais c'est à cause de nos révoltes qu'il a été percé, c'est à cause de nos fautes qu'il a été brisé. Le châtiment qui nous donne la paix est retombé sur lui et c'est par ses meurtrissures que nous avons la guérison. »"},
+      {ref:"Ésaïe 53.6",lsg21:"« Nous étions tous comme des brebis égarées : chacun suivait sa propre voie, et l'Éternel a fait retomber sur lui nos fautes à tous. »",semeur:"« Nous étions tous errants, pareils à des brebis, chacun de nous allait par son propre chemin : et l'Éternel a fait retomber sur lui les fautes de nous tous. »"},
+      {ref:"2 Corinthiens 8.9",lsg21:"« En effet, vous connaissez la grâce de notre Seigneur Jésus-Christ : pour vous il s'est fait pauvre alors qu'il était riche, afin que par sa pauvreté vous soyez enrichis. »",semeur:"« Car vous connaissez la grâce de notre Seigneur Jésus-Christ : lui qui était riche, il s'est fait pauvre pour vous afin que, par sa pauvreté, vous soyez enrichis. »"}
+    ]},
+    {title:"La justice du croyant en Christ", verses:[
+      {ref:"Romains 3.22",lsg21:"« La justice de Dieu par la foi en Jésus-Christ pour tous ceux qui croient. Il n'y a pas de différence. »",semeur:"« Il s'agit de la justice que Dieu accorde par la foi en Jésus-Christ à tous ceux qui croient. Il n'y a pas de différence entre les hommes. »"},
+      {ref:"Romains 5.17",lsg21:"« Si par la faute d'un seul la mort a régné par lui seul, à bien plus forte raison ceux qui reçoivent avec abondance la grâce et le don de la justice régneront-ils dans la vie par Jésus-Christ lui seul. »",semeur:"« Certes, par la faute d'un seul homme, la mort a régné à cause de ce seul homme. Mais combien plus ceux qui reçoivent avec abondance la grâce et le don de la justice régneront-ils dans la vie par Jésus-Christ seul. »"},
+      {ref:"Romains 8.1",lsg21:"« Il n'y a donc maintenant aucune condamnation pour ceux qui sont en Jésus-Christ. »",semeur:"« Maintenant donc, il n'y a plus aucune condamnation pour ceux qui sont unis à Jésus-Christ. »"},
+      {ref:"Romains 8.31-32",lsg21:"« Que dirons-nous donc de plus ? Si Dieu est pour nous, qui sera contre nous ? Lui qui n'a pas épargné son propre Fils mais l'a donné pour nous tous, comment ne nous accordera-t-il pas aussi tout avec lui par grâce ? »",semeur:"« Que dirons-nous de plus ? Si Dieu est pour nous, qui se lèvera contre nous ? Lui qui n'a même pas épargné son propre Fils, mais l'a livré pour nous tous, comment ne nous donnerait-il pas aussi tout avec lui ? »"},
+      {ref:"Romains 8.37",lsg21:"« Mais dans toutes ces situations, nous sommes plus que vainqueurs grâce à celui qui nous a aimés. »",semeur:"« Mais dans tout cela, nous sommes plus que vainqueurs par celui qui nous a aimés. »"},
+      {ref:"1 Jean 4.17",lsg21:"« Voici comment l'amour est parfait en nous : nous avons une pleine assurance pour le jour du jugement, parce que tel il est, tels nous sommes aussi dans ce monde. »",semeur:"« Et voici comment l'amour de Dieu s'est pleinement manifesté parmi nous : nous pouvons être remplis d'assurance au jour du jugement, car nous vivons dans ce monde comme le Christ y a vécu. »"},
+      {ref:"1 Corinthiens 1.30",lsg21:"« C'est grâce à lui que vous êtes en Jésus-Christ, lui qui est devenu pour nous, par la volonté de Dieu, sagesse, justice, sainteté et libération. »",semeur:"« Par lui, vous êtes unis au Christ, qui est devenu pour nous cette sagesse qui vient de Dieu, notre justice, notre mise à part pour Dieu, notre délivrance. »"}
+    ]}
+  ],
+  proclamations:[
+    "J'ai été crucifié avec Christ ; ce n'est plus moi qui vis, c'est Christ qui vit en moi. Mon vieil homme a été cloué à la croix — il n'a plus aucune autorité sur moi.",
+    "Je suis une nouvelle créature en Christ. Les choses anciennes sont passées. Tout est devenu nouveau. Je suis participant de la nature divine.",
+    "Christ a pris mon péché pour me donner sa justice. Il a pris ma maladie pour me donner sa guérison. Il s'est fait pauvre pour m'enrichir. L'échange est complet.",
+    "Je suis la justice de Dieu en Christ. Il n'y a aucune condamnation pour moi. Si Dieu est pour moi, qui sera contre moi ? Dans toutes ces situations, je suis plus que vainqueur.",
+    "Je suis mort, enseveli, vivifié, ressuscité et assis avec Christ dans les lieux célestes. Mon identité ne dépend plus de mon histoire, mais de ce que Jésus a fait.",
+    "Tel il est, tels nous sommes aussi dans ce monde. Ma justice ne dépend pas de ma performance — elle est un don reçu en Christ."
+  ]
+},
+// ─── ONGLET 2: MINISTÈRE CÉLESTE ───
+{
+  id:"ministere", short:"Ministère céleste",
+  full:"Le ministère actuel de Jésus au Ciel",
+  sections:[
+    {title:"Jésus assis à la droite du Père", verses:[
+      {ref:"Hébreux 1.3",lsg21:"« Le Fils est le reflet de sa gloire et l'expression de sa personne, il soutient tout par sa parole puissante. Après avoir accompli la purification de nos péchés, il s'est assis à la droite de la majesté divine dans les lieux très hauts. »",semeur:"« Ce Fils est le rayonnement de la gloire de Dieu et l'expression parfaite de son être. Il soutient toutes choses par sa parole puissante. Après avoir accompli la purification des péchés, il siège dans les lieux très hauts, à la droite de Dieu. »"},
+      {ref:"Hébreux 10.12",lsg21:"« Mais Christ a offert un seul sacrifice pour les péchés, puis il s'est assis pour toujours à la droite de Dieu. »",semeur:"« Le Christ, lui, a offert un seul sacrifice pour les péchés, et cela pour toujours, puis il s'est assis à la droite de Dieu. »"},
+      {ref:"Marc 16.19",lsg21:"« Après leur avoir parlé, le Seigneur fut enlevé au ciel, et il s'assit à la droite de Dieu. »",semeur:"« Après leur avoir ainsi parlé, le Seigneur Jésus fut enlevé au ciel et s'assit à la droite de Dieu. »"},
+      {ref:"Actes 7.55-56",lsg21:"« Mais Étienne, rempli du Saint-Esprit, fixa les regards vers le ciel et vit la gloire de Dieu et Jésus debout à la droite de Dieu. Il dit : « Je vois le ciel ouvert et le Fils de l'homme debout à la droite de Dieu. » »",semeur:"« Mais Étienne, rempli de l'Esprit Saint, leva les yeux vers le ciel et vit la gloire de Dieu et Jésus debout à la droite de Dieu. Il dit : « Voici, je vois le ciel ouvert et le Fils de l'homme debout à la droite de Dieu. » »"}
+    ]},
+    {title:"Jésus, Souverain Sacrificateur", verses:[
+      {ref:"Hébreux 4.14-15",lsg21:"« Ainsi, puisque nous avons un grand-prêtre qui a traversé le ciel, Jésus, le Fils de Dieu, restons fermement attachés à la foi que nous professons. En effet, nous n'avons pas un grand-prêtre incapable de compatir à nos faiblesses ; au contraire, il a été tenté en tout point comme nous, mais sans commettre de péché. »",semeur:"« Ainsi, puisque nous avons un grand-prêtre éminent qui a traversé les cieux, Jésus, le Fils de Dieu, demeurons fermement attachés à la foi que nous professons. En effet, nous n'avons pas un grand-prêtre qui serait incapable de compatir à nos faiblesses. Au contraire, il a été tenté en tous points comme nous le sommes, mais sans commettre de péché. »"},
+      {ref:"Hébreux 7.26-27",lsg21:"« Il nous fallait bien un tel grand-prêtre, saint, irréprochable, sans souillure, séparé des pécheurs et plus élevé que le ciel. Il n'a pas besoin, comme les souverains sacrificateurs, d'offrir chaque jour des sacrifices, d'abord pour ses propres péchés, ensuite pour ceux du peuple. Cela, il l'a fait une fois pour toutes en s'offrant lui-même. »",semeur:"« C'est bien un tel grand-prêtre qu'il nous fallait : saint, irréprochable, sans souillure, séparé des pécheurs et élevé au-dessus des cieux. Il n'a pas besoin, comme les autres grands-prêtres, de présenter chaque jour des sacrifices, d'abord pour ses propres péchés, puis pour ceux du peuple, car cela, il l'a fait une fois pour toutes en s'offrant lui-même. »"},
+      {ref:"Hébreux 9.11-12",lsg21:"« Quant à Christ, il est venu comme grand-prêtre des biens à venir. Il a traversé le tabernacle plus grand et plus parfait qui n'est pas construit par la main de l'homme. Il est entré une fois pour toutes dans le lieu très saint, non pas avec le sang de boucs et de jeunes taureaux, mais avec son propre sang. Il a ainsi obtenu une rédemption éternelle. »",semeur:"« Mais le Christ est venu en tant que grand-prêtre des biens à venir. Il a traversé un tabernacle plus grand et plus parfait, qui n'a pas été fabriqué par des mains humaines. Il est entré une fois pour toutes dans le lieu très saint, non pas avec du sang de boucs et de veaux, mais avec son propre sang, obtenant ainsi une libération définitive. »"},
+      {ref:"Hébreux 9.24",lsg21:"« En effet, Christ n'est pas entré dans un sanctuaire fait par la main de l'homme, dans une simple copie du véritable, mais il est entré dans le ciel même afin de se présenter maintenant pour nous devant Dieu. »",semeur:"« Car le Christ n'est pas entré dans un sanctuaire construit par des mains humaines, simple image du sanctuaire véritable. Non, il est entré dans le ciel même, afin de se tenir maintenant pour nous devant Dieu. »"},
+      {ref:"Hébreux 10.19-22",lsg21:"« Ainsi donc, frères, puisque nous avons, grâce au sang de Jésus, une pleine liberté pour entrer dans le sanctuaire par le chemin nouveau et vivant qu'il a inauguré pour nous au travers du voile, c'est-à-dire de sa chair, et puisque nous avons un grand prêtre établi sur la maison de Dieu, approchons-nous avec un cœur sincère, dans la pleine assurance de la foi, le cœur purifié d'une mauvaise conscience et le corps lavé d'une eau pure. »",semeur:"« Ainsi, frères et sœurs, nous avons une pleine liberté pour entrer dans le lieu très saint, grâce au sang du sacrifice de Jésus. Il nous a ouvert un chemin nouveau et vivant à travers le rideau du sanctuaire, c'est-à-dire à travers son propre corps. Nous avons un grand-prêtre éminent placé à la tête de la maison de Dieu. Approchons-nous donc de Dieu avec un cœur sincère, une foi pleine et entière, le cœur purifié d'une mauvaise conscience et le corps lavé d'une eau pure. »"}
+    ]},
+    {title:"Jésus, mon Avocat", verses:[
+      {ref:"1 Jean 2.1-2",lsg21:"« Mes petits enfants, je vous écris cela afin que vous ne péchiez pas. Mais si quelqu'un a péché, nous avons un défenseur auprès du Père, Jésus-Christ le juste. Il est lui-même la victime expiatoire pour nos péchés, et non seulement pour les nôtres, mais aussi pour ceux du monde entier. »",semeur:"« Mes chers enfants, je vous écris cela afin que vous ne péchiez pas. Mais si quelqu'un vient à pécher, nous avons un avocat auprès du Père : Jésus-Christ le juste. Car il s'est offert lui-même en sacrifice pour nos péchés, et non seulement pour les nôtres, mais aussi pour ceux du monde entier. »"},
+      {ref:"Hébreux 4.16",lsg21:"« Approchons-nous donc avec assurance du trône de la grâce afin d'obtenir compassion et de trouver grâce pour être secourus au moment opportun. »",semeur:"« Approchons-nous donc du trône de la grâce avec une pleine assurance, afin d'obtenir compassion et de trouver la grâce nécessaire pour être secourus au bon moment. »"}
+    ]},
+    {title:"Jésus, mon Médiateur", verses:[
+      {ref:"1 Timothée 2.5-6",lsg21:"« En effet, il y a un seul Dieu et il y a aussi un seul médiateur entre Dieu et les hommes : un homme, Jésus-Christ, qui s'est donné lui-même en rançon pour tous. »",semeur:"« Car il y a un seul Dieu, et de même aussi un seul médiateur entre Dieu et les hommes : un homme, Jésus-Christ, qui s'est donné lui-même en rançon pour tous. »"},
+      {ref:"Jean 14.6",lsg21:"« Jésus lui dit : « C'est moi qui suis le chemin, la vérité et la vie. On ne vient au Père qu'en passant par moi. » »",semeur:"« Jésus lui répondit : « Je suis, moi, le chemin, la vérité et la vie. Personne ne va au Père sans passer par moi. » »"},
+      {ref:"Hébreux 8.6",lsg21:"« Mais en réalité, Jésus possède un service bien supérieur, et ce d'autant plus qu'il est le médiateur d'une meilleure alliance, fondée sur de meilleures promesses. »",semeur:"« Mais maintenant, le Christ a obtenu un ministère d'autant supérieur qu'il est le médiateur d'une alliance bien meilleure, fondée sur de meilleures promesses. »"},
+      {ref:"Hébreux 9.15",lsg21:"« Voici pourquoi il est le médiateur d'une alliance nouvelle : sa mort est intervenue pour le rachat des transgressions commises sous la première alliance afin que ceux qui ont été appelés reçoivent l'héritage éternel promis. »",semeur:"« Voilà pourquoi il est le médiateur d'une alliance nouvelle. Par sa mort, il a racheté les transgressions commises sous le régime de la première alliance. Ainsi, ceux qui sont appelés peuvent recevoir l'héritage éternel que Dieu leur a promis. »"},
+      {ref:"Hébreux 12.24",lsg21:"« De Jésus, qui est le médiateur d'une alliance nouvelle, et du sang purificateur porteur d'un meilleur message que celui d'Abel. »",semeur:"« De Jésus, le médiateur d'une alliance nouvelle, et du sang purificateur qui parle mieux que celui d'Abel. »"},
+      {ref:"Actes 4.12",lsg21:"« Le salut ne s'obtient en aucun autre, car il n'y a sous le ciel aucun autre nom qui ait été donné parmi les hommes, par lequel nous devions être sauvés. »",semeur:"« C'est en lui seul que se trouve le salut. Dans le monde entier, Dieu n'a jamais donné le nom d'aucun autre homme par lequel nous devions être sauvés. »"}
+    ]},
+    {title:"Jésus, mon Intercesseur", verses:[
+      {ref:"Hébreux 7.25",lsg21:"« C'est aussi pour cela qu'il peut sauver parfaitement ceux qui s'approchent de Dieu à travers lui, puisqu'il est toujours vivant pour intercéder en leur faveur. »",semeur:"« C'est pour cela aussi qu'il est en mesure de sauver parfaitement ceux qui s'approchent de Dieu par lui, puisqu'il est toujours vivant pour intercéder en leur faveur. »"},
+      {ref:"Romains 8.34",lsg21:"« Qui les condamnera ? Christ est mort ! Plus encore, il est ressuscité, il est à la droite de Dieu et il intercède pour nous ! »",semeur:"« Qui les condamnera ? Le Christ est mort, bien plus : il est ressuscité ! Il siège à la droite de Dieu et il intercède pour nous. »"},
+      {ref:"Romains 8.26-27",lsg21:"« De même l'Esprit aussi nous vient en aide dans notre faiblesse. En effet, nous ne savons pas ce qu'il convient de demander dans nos prières, mais l'Esprit lui-même intercède [pour nous] par des soupirs que les mots ne peuvent exprimer. Et Dieu qui examine les cœurs sait quelle est la pensée de l'Esprit, parce que c'est en accord avec lui qu'il intercède en faveur des saints. »",semeur:"« De même, l'Esprit nous vient en aide dans notre faiblesse. En effet, nous ne savons pas prier comme il faut, mais l'Esprit lui-même intercède en notre faveur par des soupirs qu'aucune parole ne peut exprimer. Et Dieu qui scrute les cœurs sait ce que l'Esprit désire, car c'est selon la volonté de Dieu que l'Esprit intercède en faveur des croyants. »"}
+    ]},
+    {title:"Jésus, mon Berger et Tête de l'Église", verses:[
+      {ref:"Psaume 23.1-6",lsg21:"« L'Éternel est mon berger : je ne manquerai de rien. Il me fait reposer dans de verts pâturages, il me dirige près d'une eau paisible. Il me redonne des forces, il me conduit dans les sentiers de la justice à cause de son nom. Même quand je marche dans la sombre vallée de l'ombre de la mort, je ne redoute aucun mal car tu es avec moi. Ta conduite et ton appui : voilà ce qui me réconforte. Tu dresses une table devant moi, en face de mes adversaires ; tu verses de l'huile sur ma tête et tu fais déborder ma coupe. Oui, le bonheur et la grâce m'accompagneront tous les jours de ma vie et je reviendrai dans la maison de l'Éternel jusqu'à la fin de mes jours. »",semeur:"« L'Éternel est mon berger. Je ne manquerai de rien. Il me fait prendre du repos dans des prairies verdoyantes. Il me conduit au bord des eaux calmes. Il me restaure. Il me guide sur les bons sentiers, pour l'honneur de son nom. Même si je devais traverser la vallée de l'ombre de la mort, je ne craindrais aucun mal, car tu es avec moi. Ta houlette et ton bâton me rassurent. Devant moi tu dresses une table, face à mes adversaires. Tu oins d'huile ma tête, ma coupe déborde. Oui, le bonheur et la grâce m'accompagneront tous les jours de ma vie, et je reviendrai dans la maison de l'Éternel aussi longtemps que je vivrai. »"},
+      {ref:"Jean 10.11",lsg21:"« Moi, je suis le bon berger. Le bon berger donne sa vie pour ses brebis. »",semeur:"« Moi, je suis le bon berger. Le bon berger donne sa vie pour ses brebis. »"},
+      {ref:"Jean 10.27-28",lsg21:"« Mes brebis écoutent ma voix, je les connais et elles me suivent. Je leur donne la vie éternelle. Elles ne périront jamais et personne ne pourra les arracher à ma main. »",semeur:"« Mes brebis écoutent ma voix, je les connais et elles me suivent. Je leur donne la vie éternelle : jamais elles ne périront et personne ne pourra les arracher de ma main. »"},
+      {ref:"Hébreux 13.20-21",lsg21:"« Que le Dieu de la paix qui a ramené d'entre les morts notre Seigneur Jésus, devenu le grand berger des brebis grâce au sang d'une alliance éternelle, vous rende capables de toute bonne œuvre pour l'accomplissement de sa volonté. »",semeur:"« Dieu, qui est l'auteur de la paix, a ramené d'entre les morts notre Seigneur Jésus, devenu le grand berger des brebis par le sang d'une alliance éternelle. Qu'il vous rende capables de faire toute sorte de bien pour accomplir sa volonté. »"},
+      {ref:"1 Pierre 5.4",lsg21:"« Ainsi, lorsque le souverain berger apparaîtra, vous recevrez la couronne de gloire qui ne perd jamais son éclat. »",semeur:"« Ainsi, lorsque le Chef des bergers paraîtra, vous recevrez la couronne de gloire qui ne se flétrit jamais. »"},
+      {ref:"Colossiens 1.18",lsg21:"« Il est la tête du corps qu'est l'Église ; il est le commencement, le premier-né d'entre les morts, afin d'être en tout le premier. »",semeur:"« Il est la tête du corps, c'est-à-dire de l'Église. Il est le commencement, le premier-né d'entre les morts, afin de tenir en tout la première place. »"},
+      {ref:"Éphésiens 1.22-23",lsg21:"« Il a tout mis sous ses pieds et l'a donné pour chef suprême à l'Église, qui est son corps, la plénitude de celui qui remplit tout en tous. »",semeur:"« Dieu a tout placé sous ses pieds, et ce Christ qui domine tout, il l'a donné pour chef à l'Église qui est son corps, la plénitude de celui qui remplit tout en tous. »"},
+      {ref:"Philippiens 4.19",lsg21:"« Et mon Dieu pourvoira à tous vos besoins conformément à sa richesse, avec gloire, en Jésus-Christ. »",semeur:"« Et mon Dieu subviendra pleinement à tous vos besoins ; il le fera selon sa glorieuse richesse qui se manifeste en Jésus-Christ. »"}
+    ]}
+  ],
+  proclamations:[
+    "J'ai au Ciel un Souverain Sacrificateur qui a obtenu une rédemption éternelle par son propre sang. Ma sécurité ne dépend plus d'un rituel à répéter — le document est scellé.",
+    "Si je chute, j'ai un Avocat auprès du Père, Jésus-Christ le juste. Je perds la communion, jamais la filiation. Je m'approche avec assurance du trône de la grâce pour trouver miséricorde.",
+    "Il y a un seul médiateur entre Dieu et les hommes : Jésus-Christ homme. Aucun prêtre, aucun ancêtre, aucun intercesseur humain n'est requis. J'ai un accès direct au Père.",
+    "Il est toujours vivant pour intercéder en ma faveur. Mes prières trouvent l'attention de Dieu, non sur la base de mes mérites, mais sur la base du mérite de Christ.",
+    "L'Éternel est mon berger : je ne manquerai de rien. Je ne manque pas de guérison, pas de santé, pas de force, pas de capacité, pas d'argent. Je ne manque de rien.",
+    "Je ne suis jamais seul, jamais sans recours, jamais sans accès. Mon Souverain Sacrificateur, mon Avocat, mon Médiateur, mon Intercesseur et mon Berger agissent pour moi à chaque instant."
+  ]
+},
+// ─── ONGLET 3: NOM DE JÉSUS ───
+{
+  id:"nom", short:"Nom de Jésus",
+  full:"Le Nom de Jésus pour le croyant",
+  sections:[
+    {title:"Le Nom donné — origine et autorité", verses:[
+      {ref:"Philippiens 2.9-11",lsg21:"« C'est aussi pourquoi Dieu l'a élevé à la plus haute place et lui a donné le nom qui est au-dessus de tout nom afin qu'au nom de Jésus chacun plie le genou dans le ciel, sur la terre et sous la terre et que toute langue reconnaisse que Jésus-Christ est le Seigneur, à la gloire de Dieu le Père. »",semeur:"« C'est pourquoi Dieu l'a élevé à la plus haute place et il lui a donné le nom qui est au-dessus de tout nom, pour qu'au nom de Jésus tout être s'agenouille dans les cieux, sur la terre et sous la terre, et que chacun déclare : « Jésus-Christ est Seigneur » à la gloire de Dieu le Père. »"},
+      {ref:"Matthieu 28.18-19",lsg21:"« Jésus s'approcha et leur dit : « Tout pouvoir m'a été donné dans le ciel et sur la terre. Allez [donc], faites de toutes les nations des disciples, baptisez-les au nom du Père, du Fils et du Saint-Esprit. » »",semeur:"« Alors Jésus s'approcha d'eux et leur dit : « Tout pouvoir m'a été donné dans le ciel et sur la terre. Allez donc dans le monde entier, faites des disciples parmi tous les peuples, baptisez-les au nom du Père, du Fils et du Saint-Esprit. » »"},
+      {ref:"Hébreux 1.4",lsg21:"« Il est devenu d'autant supérieur aux anges qu'il a hérité d'un nom bien plus remarquable que le leur. »",semeur:"« Il a été élevé bien au-dessus des anges, dans la mesure où le titre que Dieu lui a conféré est incomparablement supérieur au leur. »"},
+      {ref:"Éphésiens 1.20-21",lsg21:"« Il l'a déployée en Christ quand il l'a ressuscité et l'a fait asseoir à sa droite dans les lieux célestes, au-dessus de toute domination, de toute autorité, de toute puissance, de toute souveraineté et de tout nom qui peut être nommé, non seulement dans le temps présent, mais encore dans le temps à venir. »",semeur:"« Cette puissance, il l'a déployée dans toute sa force en la faisant agir dans le Christ quand il l'a ressuscité et l'a fait siéger à sa droite dans le monde céleste, au-dessus de toute Autorité, de toute Puissance, de toute Domination et de toute Souveraineté, au-dessus de tout nom qui puisse être cité, non seulement dans le monde présent mais aussi dans le monde à venir. »"}
+    ]},
+    {title:"Le Nom pour le salut", verses:[
+      {ref:"Actes 4.12",lsg21:"« Le salut ne s'obtient en aucun autre, car il n'y a sous le ciel aucun autre nom qui ait été donné parmi les hommes, par lequel nous devions être sauvés. »",semeur:"« C'est en lui seul que se trouve le salut. Dans le monde entier, Dieu n'a jamais donné le nom d'aucun autre homme par lequel nous devions être sauvés. »"},
+      {ref:"Romains 10.13",lsg21:"« En effet, toute personne qui fera appel au nom du Seigneur sera sauvée. »",semeur:"« En effet, quiconque fera appel au Seigneur sera sauvé. »"},
+      {ref:"Jean 1.12",lsg21:"« Mais à tous ceux qui l'ont acceptée, à ceux qui croient en son nom, elle a donné le droit de devenir enfants de Dieu. »",semeur:"« Certains pourtant l'ont accueilli ; ils ont cru en lui. À tous ceux-là, il a accordé le privilège de devenir enfants de Dieu. »"},
+      {ref:"1 Jean 5.13",lsg21:"« Je vous ai écrit cela, à vous qui croyez au nom du Fils de Dieu, afin que vous sachiez que vous avez la vie éternelle. »",semeur:"« Je vous ai écrit tout cela pour que vous sachiez que vous avez la vie éternelle, vous qui croyez au nom du Fils de Dieu. »"},
+      {ref:"Actes 10.43",lsg21:"« Tous les prophètes rendent de lui le témoignage que toute personne qui croit en lui reçoit par son nom le pardon des péchés. »",semeur:"« D'ailleurs, tous les prophètes lui rendent ce témoignage : que tous ceux qui placent leur confiance en lui reçoivent par lui le pardon de leurs péchés. »"}
+    ]},
+    {title:"Le Nom dans le baptême", verses:[
+      {ref:"Matthieu 28.19",lsg21:"« Allez [donc], faites de toutes les nations des disciples, baptisez-les au nom du Père, du Fils et du Saint-Esprit. »",semeur:"« Allez donc dans le monde entier, faites des disciples parmi tous les peuples, baptisez-les au nom du Père, du Fils et du Saint-Esprit. »"},
+      {ref:"Actes 2.38",lsg21:"« Pierre leur dit : « Changez d'attitude et que chacun de vous soit baptisé au nom de Jésus-Christ pour le pardon de vos péchés, et vous recevrez le don du Saint-Esprit. » »",semeur:"« Pierre leur répondit : « Changez, et que chacun de vous se fasse baptiser au nom de Jésus-Christ, pour que vos péchés vous soient pardonnés. Alors, vous recevrez le don du Saint-Esprit. » »"},
+      {ref:"Actes 8.16",lsg21:"« En effet, il n'était encore descendu sur aucun d'eux ; ils avaient seulement été baptisés au nom du Seigneur Jésus. »",semeur:"« Car l'Esprit n'était encore descendu sur aucun d'entre eux ; ils avaient seulement été baptisés au nom du Seigneur Jésus. »"},
+      {ref:"Actes 19.5",lsg21:"« Sur ces paroles, ils se firent baptiser au nom du Seigneur Jésus. »",semeur:"« Après avoir entendu ces paroles, ils furent baptisés au nom du Seigneur Jésus. »"}
+    ]},
+    {title:"Le Nom dans la prière", verses:[
+      {ref:"Jean 14.13-14",lsg21:"« Tout ce que vous demanderez en mon nom, je le ferai afin que la gloire du Père soit révélée dans le Fils. Si vous [me] demandez quelque chose en mon nom, je le ferai. »",semeur:"« Et tout ce que vous demanderez en mon nom, je le réaliserai afin que la gloire du Père soit manifestée par le Fils. Oui, si vous me demandez quelque chose en mon nom, je le ferai. »"},
+      {ref:"Jean 15.7",lsg21:"« Si vous demeurez en moi et que mes paroles demeurent en vous, vous demanderez ce que vous voudrez et cela vous sera accordé. »",semeur:"« Si vous demeurez en moi et que mes paroles demeurent en vous, demandez ce que vous voudrez et cela vous sera accordé. »"},
+      {ref:"Jean 15.16",lsg21:"« Ce n'est pas vous qui m'avez choisi, mais c'est moi qui vous ai choisis, et je vous ai établis afin que vous alliez, que vous portiez du fruit et que votre fruit demeure. Alors, ce que vous demanderez au Père en mon nom, il vous le donnera. »",semeur:"« Ce n'est pas vous qui m'avez choisi, mais c'est moi qui vous ai choisis ; et je vous ai donné mission d'aller, de porter du fruit, un fruit qui soit durable. Alors le Père vous donnera tout ce que vous lui demanderez en mon nom. »"},
+      {ref:"Jean 16.23-24",lsg21:"« Ce jour-là, vous ne m'interrogerez plus sur rien. En vérité, en vérité, je vous le dis, [tout] ce que vous demanderez au Père en mon nom, il vous le donnera. Jusqu'à présent, vous n'avez rien demandé en mon nom. Demandez et vous recevrez, afin que votre joie soit complète. »",semeur:"« Quand ce jour-là sera venu, vous ne m'adresserez plus de questions. Oui, vraiment, je vous l'assure : tout ce que vous demanderez au Père en mon nom, il vous le donnera. Jusqu'à présent vous n'avez rien demandé en mon nom. Demandez, et vous recevrez, pour que votre joie soit complète. »"},
+      {ref:"Jean 16.26-27",lsg21:"« Ce jour-là, vous demanderez en mon nom, et je ne vous dis pas que je prierai le Père pour vous. En effet, le Père lui-même vous aime parce que vous m'avez aimé et que vous avez cru que je suis sorti de Dieu. »",semeur:"« Ce jour-là, vous adresserez vos demandes au Père en mon nom, et je ne vous dis pas que je le prierai pour vous, car le Père lui-même vous aime parce que vous m'aimez et que vous avez cru que je suis venu de Dieu. »"}
+    ]},
+    {title:"Le Nom contre les démons", verses:[
+      {ref:"Marc 16.17-18",lsg21:"« Voici les signes qui accompagneront ceux qui auront cru : en mon nom, ils pourront chasser des démons, parler de nouvelles langues, attraper des serpents, et s'ils boivent un breuvage mortel, celui-ci ne leur fera aucun mal ; ils poseront les mains sur les malades et ceux-ce seront guéris. »",semeur:"« Voici les signes miraculeux qui accompagneront ceux qui auront cru : en mon nom, ils chasseront des démons, ils parleront des langues nouvelles, ils saisiront des serpents et, s'ils boivent un poison mortel, il ne leur causera aucun mal ; ils imposeront les mains à des malades et ceux-ci seront guéris. »"},
+      {ref:"Luc 10.17-19",lsg21:"« Les 70 revinrent tout joyeux et dirent : « Seigneur, même les démons nous sont soumis en ton nom. » Jésus leur dit : « Je voyais Satan tomber du ciel comme un éclair. Voici, je vous ai donné le pouvoir de marcher sur les serpents et les scorpions et sur toute la puissance de l'ennemi, et rien ne pourra vous nuire. » »",semeur:"« Les soixante-dix revinrent tout joyeux et dirent : « Seigneur, même les démons nous sont soumis lorsque nous agissons en ton nom. » Jésus leur dit : « Je voyais Satan tomber du ciel comme un éclair. Voici : je vous ai donné le pouvoir de marcher sur les serpents et les scorpions, et d'écraser toute la puissance de l'ennemi, et rien ne pourra vous faire de mal. » »"},
+      {ref:"Actes 16.18",lsg21:"« Paul, agacé, se retourna et dit à l'esprit : « Je t'ordonne, au nom de Jésus-Christ, de sortir d'elle. » Il sortit à l'heure même. »",semeur:"« Cela dura plusieurs jours. À la fin, Paul, excédé, se retourna et dit à l'esprit : « Au nom de Jésus-Christ, je t'ordonne de sortir de cette femme ! » À l'instant même, l'esprit la quitta. »"},
+      {ref:"Actes 19.13-16",lsg21:"« Quelques-uns des exorcistes juifs ambulants essayèrent de prononcer le nom du Seigneur Jésus sur ceux qui avaient des esprits mauvais en disant : « Nous vous adjurons par le Jésus que Paul prêche. » L'esprit mauvais leur répondit : « Je connais Jésus et je sais qui est Paul ; mais vous, qui êtes-vous ? » Et l'homme se jeta sur eux, les maîtrisa tous et les maltraita de telle sorte qu'ils s'enfuirent nus et blessés. »",semeur:"« Quelques exorcistes juifs ambulants essayèrent, eux aussi, de prononcer le nom du Seigneur Jésus sur ceux qui étaient habités par des esprits mauvais en disant : « Je vous conjure par ce Jésus que Paul annonce ! » L'esprit mauvais leur répondit : « Jésus, je le connais, et Paul, je sais qui c'est. Mais vous, qui êtes-vous ? » Et l'homme qui avait l'esprit mauvais se jeta sur eux, les maîtrisa et les maltraita, si bien qu'ils s'enfuirent de cette maison nus et couverts de blessures. »"}
+    ]},
+    {title:"Le Nom pour la guérison", verses:[
+      {ref:"Actes 3.6-8",lsg21:"« Alors Pierre lui dit : « Je n'ai ni argent ni or, mais ce que j'ai, je te le donne : au nom de Jésus-Christ de Nazareth, [lève-toi et] marche ! » Puis il le prit par la main droite et le fit lever. Ses pieds et ses chevilles s'affermirent immédiatement. D'un saut il fut debout et se mit à marcher. »",semeur:"« Pierre lui dit alors : « Je n'ai ni argent, ni or, mais ce que j'ai, je te le donne : au nom de Jésus-Christ de Nazareth, lève-toi et marche ! » Il le prit par la main droite et l'aida à se relever. Aussitôt, les pieds et les chevilles de l'infirme devinrent fermes. D'un bond, il fut sur ses pieds et se mit à marcher. »"},
+      {ref:"Actes 3.16",lsg21:"« C'est par la foi en son nom que son nom a guéri l'homme que vous voyez et connaissez ; c'est la foi en Jésus qui a donné à cet homme une entière guérison en présence de vous tous. »",semeur:"« C'est la foi en Jésus qui a rendu la force à cet homme que vous voyez et que vous connaissez. Oui, c'est la foi en Jésus qui lui a donné cette entière guérison, comme vous pouvez tous le constater. »"},
+      {ref:"Actes 4.10",lsg21:"« Sachez-le bien, vous tous, ainsi que tout le peuple d'Israël : c'est par le nom de Jésus-Christ de Nazareth, celui que vous avez crucifié et que Dieu a ressuscité, oui, c'est par lui que cet homme se présente en pleine santé devant vous. »",semeur:"« Sachez-le bien, vous tous et tout le peuple d'Israël : c'est au nom de Jésus-Christ de Nazareth — celui que vous avez crucifié et que Dieu a ressuscité — oui, c'est par ce nom-là que cet homme se présente guéri devant vous. »"},
+      {ref:"Actes 4.30",lsg21:"« Tends ta main pour qu'il se produise des guérisons, des signes et des prodiges par le nom de ton saint serviteur Jésus. »",semeur:"« Déploie ta puissance, pour qu'il se produise des guérisons, des signes miraculeux et des prodiges par le nom de ton saint serviteur Jésus. »"},
+      {ref:"Jacques 5.14-15",lsg21:"« L'un de vous est-il malade ? Qu'il appelle les anciens de l'Église et que les anciens prient pour lui en lui appliquant de l'huile au nom du Seigneur. La prière de la foi sauvera le malade et le Seigneur le relèvera. »",semeur:"« L'un de vous est-il malade ? Qu'il appelle les responsables de l'Église ; ceux-ci prieront pour lui, après lui avoir appliqué de l'huile au nom du Seigneur. La prière faite avec foi sauvera le malade ; le Seigneur le rétablira. »"}
+    ]},
+    {title:"Le Nom dans le combat quotidien", verses:[
+      {ref:"Éphésiens 6.10-12",lsg21:"« Enfin, fortifiez-vous dans le Seigneur et dans sa force toute-puissante. Revêtez-vous de toutes les armes de Dieu afin de pouvoir tenir ferme contre les manœuvres du diable. En effet, ce n'est pas contre l'homme que nous avons à lutter, mais contre les puissances, contre les autorités, contre les dominateurs de ces ténèbres, contre les esprits du mal dans les lieux célestes. »",semeur:"« Enfin, puisez votre force dans le Seigneur et dans sa grande puissance. Revêtez-vous de l'armure que Dieu donne afin de pouvoir résister aux manœuvres du diable. Car nous n'avons pas à lutter contre des êtres de chair et de sang, mais contre les Puissances, contre les Autorités, contre les Pouvoirs de ce monde des ténèbres, et contre les esprits du mal dans le monde céleste. »"},
+      {ref:"Jacques 4.7",lsg21:"« Soumettez-vous donc à Dieu, mais résistez au diable et il fuira loin de vous. »",semeur:"« Soumettez-vous donc à Dieu, résistez au diable et il fuira loin de vous. »"},
+      {ref:"1 Pierre 5.8-9",lsg21:"« Soyez sobres, restez vigilants : votre adversaire, le diable, rôde comme un lion rugissant, cherchant qui dévorer. Résistez-lui avec une foi inébranlable. »",semeur:"« Faites preuve de sobriété et soyez vigilants : votre adversaire, le diable, rôde autour de vous comme un lion rugissant, qui cherche quelqu'un à dévorer. Résistez-lui en restant fermes dans la foi. »"},
+      {ref:"Romains 8.37",lsg21:"« Mais dans toutes ces situations, nous sommes plus que vainqueurs grâce à celui qui nous a aimés. »",semeur:"« Mais dans tout cela, nous sommes plus que vainqueurs par celui qui nous a aimés. »"},
+      {ref:"1 Jean 4.4",lsg21:"« Vous, petits enfants, vous êtes de Dieu et vous avez vaincu ces prétendus prophètes parce que celui qui est en vous est plus grand que celui qui est dans le monde. »",semeur:"« Quant à vous, chers enfants, vous êtes de Dieu et vous avez remporté la victoire sur ces prophètes de mensonge, car celui qui est en vous est plus grand que celui qui inspire ce monde. »"}
+    ]},
+    {title:"Le Nom dans le culte et la vie ordinaire", verses:[
+      {ref:"Colossiens 3.17",lsg21:"« Et quoi que vous fassiez, en parole ou en acte, faites tout au nom du Seigneur Jésus en exprimant par lui votre reconnaissance à Dieu le Père. »",semeur:"« Dans tout ce que vous pouvez dire ou faire, agissez au nom du Seigneur Jésus, en remerciant par lui Dieu le Père. »"},
+      {ref:"Éphésiens 5.20",lsg21:"« Remerciez constamment Dieu le Père pour tout, au nom de notre Seigneur Jésus-Christ. »",semeur:"« Ne cessez de remercier Dieu le Père en tout temps et pour tout, au nom de notre Seigneur Jésus-Christ. »"},
+      {ref:"Matthieu 18.20",lsg21:"« En effet, là où deux ou trois sont rassemblés en mon nom, je suis au milieu d'eux. »",semeur:"« Car là où deux ou trois sont ensemble en mon nom, je suis présent au milieu d'eux. »"},
+      {ref:"Hébreux 13.15",lsg21:"« Par Jésus, offrons [donc] sans cesse à Dieu un sacrifice de louange, c'est-à-dire le fruit de lèvres qui reconnaissent publiquement son nom. »",semeur:"« Par Jésus, offrons donc sans cesse à Dieu un sacrifice de louange, c'est-à-dire l'expression de lèvres qui confessent son nom. »"},
+      {ref:"1 Corinthiens 6.11",lsg21:"« Et c'est ce que vous étiez, certains d'entre vous. Mais vous avez été lavés, mais vous avez été déclarés saints, mais vous avez été déclarés justes au nom du Seigneur Jésus[-Christ] et par l'Esprit de notre Dieu. »",semeur:"« Et c'est là ce que vous étiez, certains d'entre vous. Mais vous avez été lavés, vous avez été déclarés saints, vous avez été déclarés justes au nom du Seigneur Jésus-Christ et par l'Esprit de notre Dieu. »"}
+    ]}
+  ],
+  proclamations:[
+    "Je porte le Nom qui est au-dessus de tout nom. Tout pouvoir a été donné à Jésus dans le ciel et sur la terre, et il m'a délégué l'usage de ce Nom.",
+    "Il n'y a sous le ciel aucun autre nom par lequel je doive être sauvé. Mon salut repose sur le Nom de Jésus, et j'ai le droit de devenir enfant de Dieu.",
+    "Tout ce que je demande au Père en ce Nom, il me le donne. J'approche le Père comme un fils, non comme un esclave, avec précision et assurance.",
+    "En ce Nom, je chasse les démons. Le Nom n'est pas une formule — c'est une procuration légale. J'ai l'autorité parce que je suis en Christ.",
+    "Au Nom de Jésus-Christ de Nazareth, les malades sont guéris. La guérison n'est pas réservée à quelques ministères — elle est attachée au Nom qui est à ma disposition.",
+    "Je me fortifie dans le Seigneur et dans sa force toute-puissante. Celui qui est en moi est plus grand que celui qui est dans le monde. Je résiste au diable et il fuit.",
+    "Quoi que je fasse, en parole ou en acte, je fais tout au Nom du Seigneur Jésus. Ce Nom n'a rien perdu de la puissance de l'Homme qui le portait."
+  ]
+},
+// ─── ONGLET 4: PRIÈRE ───
+{
+  id:"priere", short:"Prière",
+  full:"Prière pétition et prière proclamation",
+  sections:[
+    {title:"Le texte central — Marc 11.22-24", verses:[
+      {ref:"Marc 11.22-24",lsg21:"« Jésus leur dit alors : « Ayez foi en Dieu. Je vous le dis en vérité, si quelqu'un dit à cette montagne : « Retire-toi de là et jette-toi dans la mer », et s'il ne doute pas dans son cœur mais croit que ce qu'il dit arrive, il le verra s'accomplir. C'est pourquoi je vous le dis : tout ce que vous demanderez en priant, croyez que vous l'avez reçu et cela vous sera accordé. » »",semeur:"« Jésus leur répondit : « Ayez foi en Dieu ! Vraiment, je vous l'assure, si quelqu'un dit à cette colline : « Soulève-toi de là et jette-toi dans la mer », sans douter dans son cœur, mais en croyant que ce qu'il dit se réalisera, la chose s'accomplira pour lui. C'est pourquoi, je vous le déclare : tout ce que vous demandez dans vos prières, croyez que vous l'avez reçu et cela vous sera accordé. » »"}
+    ]},
+    {title:"Versets de la pétition — parler au Père", verses:[
+      {ref:"Matthieu 6.31-33",lsg21:"« Ne vous inquiétez donc pas et ne dites pas : « Que mangerons-nous ? Que boirons-nous ? Avec quoi nous habillerons-nous ? » car tout cela, ce sont les membres des autres peuples qui le recherchent. Or, votre Père céleste sait que vous en avez besoin. Recherchez d'abord le royaume et la justice de Dieu, et tout cela vous sera donné en plus. »",semeur:"« Ne vous inquiétez donc pas et ne dites pas : « Que mangerons-nous ? » ou : « Que boirons-nous ? » ou : « Avec quoi nous habillerons-nous ? » Toutes ces choses, les païens s'en préoccupent sans cesse. Mais votre Père, qui est dans les cieux, sait que vous en avez besoin. Faites donc du règne de Dieu et de ce qui est juste à ses yeux votre préoccupation première, et toutes ces choses vous seront données en plus. »"},
+      {ref:"Matthieu 7.7-11",lsg21:"« Demandez et l'on vous donnera, cherchez et vous trouverez, frappez et l'on vous ouvrira. En effet, toute personne qui demande reçoit, celui qui cherche trouve et l'on ouvre à celui qui frappe. Qui parmi vous donnera une pierre à son fils s'il lui demande du pain ? Si donc, mauvais comme vous l'êtes, vous savez donner de bonnes choses à vos enfants, votre Père céleste donnera d'autant plus volontiers de bonnes choses à ceux qui les lui demandent. »",semeur:"« Demandez, et vous recevrez ; cherchez, et vous trouverez ; frappez, et l'on vous ouvrira. Car celui qui demande reçoit ; celui qui cherche trouve ; et l'on ouvre à celui qui frappe. Qui de vous donnera un caillou à son fils quand celui-ci lui demande du pain ? Si donc, tout mauvais que vous êtes, vous savez donner de bonnes choses à vos enfants, à combien plus forte raison votre Père céleste donnera-t-il de bonnes choses à ceux qui les lui demandent. »"},
+      {ref:"Jacques 1.5-6",lsg21:"« Si l'un de vous manque de sagesse, qu'il la demande à Dieu qui donne à tous généreusement et sans faire de reproche, et elle lui sera donnée. Mais qu'il la demande avec foi, sans douter. »",semeur:"« Si l'un de vous manque de sagesse, qu'il la demande à Dieu qui la donne à tous généreusement et sans faire de reproche, et elle lui sera donnée. Mais qu'il la demande avec foi, sans douter. »"},
+      {ref:"Philippiens 4.6-7",lsg21:"« Ne vous inquiétez de rien, mais en toute chose faites connaître vos besoins à Dieu par des prières et des supplications, dans une attitude de reconnaissance. Et la paix de Dieu, qui dépasse tout ce que l'on peut comprendre, gardera votre cœur et vos pensées en Jésus-Christ. »",semeur:"« Ne vous mettez en souci pour rien, mais, en toute chose, exposez vos besoins à Dieu. Adressez-lui vos prières et vos requêtes, en lui disant aussi votre reconnaissance. Alors la paix de Dieu, qui surpasse tout ce qu'on peut concevoir, gardera votre cœur et vos pensées sous la protection de Jésus-Christ. »"},
+      {ref:"1 Jean 5.14-15",lsg21:"« Nous avons auprès de lui cette assurance : si nous demandons quelque chose conformément à sa volonté, il nous écoute. Et si nous savons qu'il nous écoute, quelle que soit notre demande, nous savons que nous possédons ce que nous lui avons demandé. »",semeur:"« Voici quelle assurance nous avons devant Dieu : si nous demandons quelque chose qui est conforme à sa volonté, il nous écoute. Et si nous savons qu'il écoute nos prières, nous savons aussi que l'objet de nos demandes nous est acquis. »"},
+      {ref:"Hébreux 4.16",lsg21:"« Approchons-nous donc avec assurance du trône de la grâce afin d'obtenir compassion et de trouver grâce pour être secourus au moment opportun. »",semeur:"« Approchons-nous donc du trône de la grâce avec une pleine assurance, afin d'obtenir compassion et de trouver la grâce nécessaire pour être secourus au bon moment. »"},
+      {ref:"Éphésiens 6.18",lsg21:"« Faites en tout temps par l'Esprit toutes sortes de prières et de supplications. Veillez-y avec une entière persévérance et priez pour tous les saints. »",semeur:"« En toutes circonstances, faites toutes sortes de prières et de requêtes sous la conduite de l'Esprit. Faites-le avec vigilance et persévérance, et intercédez pour tous ceux qui appartiennent à Dieu. »"}
+    ]},
+    {title:"Versets de la proclamation — parler à la situation", verses:[
+      {ref:"Marc 11.23",lsg21:"« Je vous le dis en vérité, si quelqu'un dit à cette montagne : « Retire-toi de là et jette-toi dans la mer », et s'il ne doute pas dans son cœur mais croit que ce qu'il dit arrive, il le verra s'accomplir. »",semeur:"« Vraiment, je vous l'assure, si quelqu'un dit à cette colline : « Soulève-toi de là et jette-toi dans la mer », sans douter dans son cœur, mais en croyant que ce qu'il dit se réalisera, la chose s'accomplira pour lui. »"},
+      {ref:"Marc 16.17-18",lsg21:"« Voici les signes qui accompagneront ceux qui auront cru : en mon nom, ils pourront chasser des démons, parler de nouvelles langues, attraper des serpents, et s'ils boivent un breuvage mortel, celui-ci ne leur fera aucun mal ; ils poseront les mains sur les malades et ceux-ci seront guéris. »",semeur:"« Voici les signes miraculeux qui accompagneront ceux qui auront cru : en mon nom, ils chasseront des démons, ils parleront des langues nouvelles, ils saisiront des serpents et, s'ils boivent un poison mortel, il ne leur causera aucun mal ; ils imposeront les mains à des malades et ceux-ci seront guéris. »"},
+      {ref:"Actes 3.6",lsg21:"« Alors Pierre lui dit : « Je n'ai ni argent ni or, mais ce que j'ai, je te le donne : au nom de Jésus-Christ de Nazareth, [lève-toi et] marche ! » »",semeur:"« Pierre lui dit alors : « Je n'ai ni argent, ni or, mais ce que j'ai, je te le donne : au nom de Jésus-Christ de Nazareth, lève-toi et marche ! » »"},
+      {ref:"Actes 9.34",lsg21:"« Pierre lui dit : « Énée, Jésus-Christ te guérit. Lève-toi et arrange toi-même ton lit. » Aussitôt il se leva. »",semeur:"« Pierre lui dit : « Énée, Jésus-Christ te guérit ! Lève-toi et fais ton lit toi-même ! » Aussitôt Énée se leva. »"},
+      {ref:"Actes 9.40",lsg21:"« Pierre fit sortir tout le monde, se mit à genoux et pria. Puis il se tourna vers le corps et dit : « Tabitha, lève-toi ! » Elle ouvrit les yeux et, voyant Pierre, elle s'assit. »",semeur:"« Pierre fit sortir tout le monde, se mit à genoux et pria, puis il se tourna vers le corps et dit : « Tabitha, lève-toi ! » Elle ouvrit les yeux et, voyant Pierre, elle s'assit. »"},
+      {ref:"Actes 14.9-10",lsg21:"« Il écoutait parler Paul. Celui-ci fixa les regards sur lui et, voyant qu'il avait la foi pour être sauvé, il dit d'une voix forte : « Lève-toi droit sur tes pieds ! » Il se leva d'un bond et se mit à marcher. »",semeur:"« Il écoutait parler Paul. Celui-ci le fixa du regard et vit qu'il avait la foi pour être guéri. Alors il lui dit d'une voix forte : « Lève-toi, tiens-toi droit sur tes pieds ! » L'homme se leva d'un bond et se mit à marcher. »"},
+      {ref:"Actes 16.18",lsg21:"« Paul, agacé, se retourna et dit à l'esprit : « Je t'ordonne, au nom de Jésus-Christ, de sortir d'elle. » Il sortit à l'heure même. »",semeur:"« Cela dura plusieurs jours. À la fin, Paul, excédé, se retourna et dit à l'esprit : « Au nom de Jésus-Christ, je t'ordonne de sortir de cette femme ! » À l'instant même, l'esprit la quitta. »"},
+      {ref:"Luc 4.35",lsg21:"« Jésus le menaça en disant : « Tais-toi et sors de cet homme. » Le démon jeta l'homme au milieu de l'assemblée et sortit de lui sans lui faire aucun mal. »",semeur:"« Jésus lui ordonna sévèrement : « Tais-toi et sors de cet homme ! » Le démon jeta l'homme à terre au milieu de l'assemblée et sortit de lui sans lui faire aucun mal. »"},
+      {ref:"Matthieu 8.26",lsg21:"« Il leur dit : « Pourquoi êtes-vous si craintifs, hommes de peu de foi ? » Alors il se leva, menaça les vents et la mer, et un grand calme se fit. »",semeur:"« Jésus leur dit : « Pourquoi avez-vous peur ? Comme votre foi est petite ! » Alors il se leva, menaça les vents et le lac, et il se fit un grand calme. »"}
+    ]}
+  ],
+  proclamations:[
+    "Il y a deux registres de prière : la pétition vers le Père et la proclamation vers la situation. Je sais lequel employer dans chaque circonstance.",
+    "Au Père, je demande en ce Nom la provision, la sagesse, l'orientation, le salut de mes proches. Je lui fais connaître mes besoins par la prière et la supplication.",
+    "À la situation, je parle en ce Nom. La maladie, les démons, les circonstances bloquées — je leur parle et je leur commande, car c'est l'autorité que Jésus m'a déléguée.",
+    "Je ne prie pas un démon de partir — je lui commande de partir. Je ne supplie pas la maladie — je lui ordonne de quitter ce corps au Nom de Jésus.",
+    "Je ne confonds plus le Nom et la formule. Le Nom opère comme procuration, et cette procuration repose sur mon identité en Christ. J'ai la vie en Christ, donc j'ai l'autorité du Nom."
+  ]
+},
+// ─── ONGLET 5: SANG DE JÉSUS ───
+{
+  id:"sang", short:"Sang de Jésus",
+  full:"Appliquer le sang de Jésus",
+  sections:[
+    {title:"1. La Rédemption", verses:[
+      {ref:"Éphésiens 1.7",lsg21:"« En lui nous avons la rédemption par son sang, le pardon de nos fautes, selon la richesse de sa grâce. »",semeur:"« En Christ, parce qu'il s'est offert en sacrifice, nous avons obtenu la délivrance, le pardon de nos fautes. Dieu a ainsi manifesté sa grâce dans toute sa richesse. »"},
+      {ref:"1 Pierre 1.18-19",lsg21:"« Sachant que ce n'est pas par des choses périssables, de l'argent ou de l'or, que vous avez été rachetés de la vaine manière de vivre héritée de vos pères, mais par le sang précieux de Christ, comme d'un agneau sans défaut et sans tache. »",semeur:"« Car vous le savez : ce n'est pas par des biens périssables — argent ou or — que vous avez été rachetés de cette manière de vivre dépourvue de sens que vos ancêtres vous avaient transmise. Non, il a fallu que le Christ, tel un agneau sans défaut et sans tache, verse son sang précieux en sacrifice pour vous. »"},
+      {ref:"Psaume 107.2",lsg21:"« Que le disent les rachetés de l'Éternel, ceux qu'il a délivrés de la main de l'adversaire. »",semeur:"« Voilà ce que diront les rachetés de l'Éternel, ceux qu'il a délivrés de la détresse. »"}
+    ]},
+    {title:"2. La Purification", verses:[
+      {ref:"1 Jean 1.7",lsg21:"« Mais si nous marchons dans la lumière, comme il est lui-même dans la lumière, nous sommes mutuellement en communion, et le sang de Jésus son Fils nous purifie de tout péché. »",semeur:"« Mais si nous vivons dans la lumière, tout comme Dieu lui-même est dans la lumière, alors nous sommes en communion les uns avec les autres et le sang de Jésus, son Fils, nous purifie de tout péché. »"},
+      {ref:"Psaume 51.7",lsg21:"« Purifie-moi avec l'hysope et je serai pur ; lave-moi et je serai plus blanc que la neige. »",semeur:"« Purifie-moi du péché avec l'hysope, et je serai pur ; lave-moi, et je serai plus blanc que la neige. »"},
+      {ref:"Hébreux 9.14",lsg21:"« Combien plus le sang du Christ, qui, par un Esprit éternel, s'est offert lui-même sans tache à Dieu, purifiera-t-il votre conscience des œuvres mortes pour que vous serviez le Dieu vivant ! »",semeur:"« Si tel est le cas, combien plus le sang du Christ purifiera-t-il notre conscience des œuvres qui mènent à la mort afin que nous servions le Dieu vivant. Car le Christ, poussé par l'Esprit éternel, s'est offert lui-même à Dieu comme une victime sans défaut. »"}
+    ]},
+    {title:"3. La Justification", verses:[
+      {ref:"Romains 5.8-9",lsg21:"« Mais Dieu prouve son amour envers nous en ce que, lorsque nous étions encore des pécheurs, Christ est mort pour nous. À plus forte raison donc, maintenant que nous sommes justifiés par son sang, serons-nous sauvés par lui de la colère. »",semeur:"« Mais Dieu nous a donné la preuve de son amour : le Christ est mort pour nous alors que nous étions encore pécheurs. Maintenant que nous avons été déclarés justes grâce à son sacrifice, nous serons, à plus forte raison, sauvés par lui de la colère de Dieu. »"},
+      {ref:"2 Corinthiens 5.21",lsg21:"« Celui qui n'a pas connu le péché, il l'a fait devenir péché pour nous, afin que nous devenions en lui justice de Dieu. »",semeur:"« Celui qui n'a pas connu le péché, Dieu l'a fait devenir péché pour nous, afin que, dans l'union avec le Christ, nous devenions justice de Dieu. »"},
+      {ref:"Romains 3.24-25",lsg21:"« Ils sont justifiés gratuitement par sa grâce, par la rédemption qui est en Jésus-Christ. C'est lui que Dieu a destiné à être, par son sang, une propitiation au moyen de la foi. »",semeur:"« Et ils sont déclarés justes par sa grâce ; c'est un don que Dieu leur fait par le moyen de la délivrance apportée par Jésus-Christ. C'est lui que Dieu a offert comme une victime destinée à expier les péchés, pour ceux qui croient en son sacrifice. »"}
+    ]},
+    {title:"4. La Sanctification", verses:[
+      {ref:"Hébreux 13.12",lsg21:"« C'est pourquoi Jésus aussi, pour sanctifier le peuple par son propre sang, a souffert hors de la porte. »",semeur:"« C'est pourquoi Jésus aussi, pour purifier le peuple par son propre sang, a souffert hors de la porte de la ville. »"},
+      {ref:"1 Corinthiens 6.19-20",lsg21:"« Ne savez-vous pas que votre corps est le temple du Saint-Esprit qui est en vous, que vous avez reçu de Dieu, et que vous ne vous appartenez pas à vous-mêmes ? Car vous avez été achetés à un grand prix. Glorifiez donc Dieu dans votre corps. »",semeur:"« Ou bien ignorez-vous que votre corps est le temple même du Saint-Esprit qui vous a été donné par Dieu et qui, maintenant, demeure en vous ? Vous ne vous appartenez donc pas à vous-mêmes. Car vous avez été rachetés à grand prix. Honorez donc Dieu dans votre corps. »"},
+      {ref:"Colossiens 1.13-14",lsg21:"« Il nous a délivrés de la puissance des ténèbres et nous a transportés dans le royaume du Fils de son amour, en qui nous avons la rédemption, le pardon des péchés. »",semeur:"« Il nous a arrachés au pouvoir des ténèbres et nous a fait passer dans le royaume de son Fils bien-aimé. Et c'est par lui que nous avons été délivrés et que nous avons reçu le pardon des péchés. »"}
+    ]},
+    {title:"5. La Vie", verses:[
+      {ref:"Lévitique 17.11",lsg21:"« Car la vie de la chair est dans le sang. Je vous l'ai donné pour faire l'expiation sur l'autel pour vos âmes ; car c'est le sang qui fait l'expiation pour l'âme. »",semeur:"« Car la vie d'une créature est dans le sang. Je vous ai donné le sang afin que, sur l'autel, il serve d'expiation pour votre vie. En effet, c'est le sang qui fait l'expiation parce qu'il est la vie. »"},
+      {ref:"Jean 6.54-56",lsg21:"« Celui qui mange ma chair et qui boit mon sang a la vie éternelle, et je le ressusciterai au dernier jour. Car ma chair est vraiment une nourriture, et mon sang est vraiment un breuvage. Celui qui mange ma chair et qui boit mon sang demeure en moi et moi en lui. »",semeur:"« Celui qui mange ma chair et qui boit mon sang a la vie éternelle, et moi, je le ressusciterai au dernier jour. Car ma chair est une vraie nourriture et mon sang un vrai breuvage. Celui qui mange ma chair et boit mon sang demeure en moi, et moi je demeure en lui. »"},
+      {ref:"1 Corinthiens 11.25-26",lsg21:"« De même, il prit aussi la coupe après le repas, en disant : « Cette coupe est la nouvelle alliance en mon sang ; faites ceci en mémoire de moi, toutes les fois que vous en boirez. » Car toutes les fois que vous mangez ce pain et que vous buvez cette coupe, vous annoncez la mort du Seigneur jusqu'à ce qu'il vienne. »",semeur:"« De même, après le repas, il prit la coupe et dit : « Cette coupe est la nouvelle alliance scellée de mon sang. Toutes les fois que vous en boirez, faites-le en mémoire de moi. » En effet, toutes les fois que vous mangez ce pain et que vous buvez cette coupe, vous annoncez la mort du Seigneur, et ceci jusqu'à ce qu'il vienne. »"}
+    ]},
+    {title:"6. L'Intercession", verses:[
+      {ref:"Hébreux 12.24",lsg21:"« À Jésus, médiateur d'une nouvelle alliance, et au sang de l'aspersion qui parle mieux que celui d'Abel. »",semeur:"« De Jésus, le médiateur d'une alliance nouvelle, et du sang purificateur qui parle mieux que celui d'Abel. »"},
+      {ref:"Genèse 4.10",lsg21:"« Et Dieu dit : Qu'as-tu fait ? La voix du sang de ton frère crie de la terre jusqu'à moi. »",semeur:"« Dieu lui dit : « Qu'as-tu fait ? J'entends le sang de ton frère crier du sol jusqu'à moi. » »"},
+      {ref:"Hébreux 7.25",lsg21:"« C'est pourquoi aussi il peut sauver parfaitement ceux qui s'approchent de Dieu par lui, étant toujours vivant pour intercéder en leur faveur. »",semeur:"« C'est pour cela aussi qu'il est en mesure de sauver parfaitement ceux qui s'approchent de Dieu par lui, puisqu'il est toujours vivant pour intercéder en leur faveur. »"}
+    ]},
+    {title:"7. L'Accès confiant", verses:[
+      {ref:"Hébreux 10.19-22",lsg21:"« Ainsi donc, frères, puisque nous avons, grâce au sang de Jésus, une pleine liberté pour entrer dans le sanctuaire par le chemin nouveau et vivant qu'il a inauguré pour nous au travers du voile, c'est-à-dire de sa chair, et puisque nous avons un grand prêtre établi sur la maison de Dieu, approchons-nous avec un cœur sincère, dans la pleine assurance de la foi. »",semeur:"« Ainsi, frères et sœurs, nous avons une pleine liberté pour entrer dans le lieu très saint, grâce au sang du sacrifice de Jésus. Il nous a ouvert un chemin nouveau et vivant à travers le rideau du sanctuaire, c'est-à-dire à travers son propre corps. Nous avons un grand-prêtre éminent placé à la tête de la maison de Dieu. Approchons-nous donc de Dieu avec un cœur sincère, une foi pleine et entière. »"},
+      {ref:"Éphésiens 2.13",lsg21:"« Mais maintenant, en Jésus-Christ, vous qui étiez autrefois loin, vous avez été rapprochés par le sang du Christ. »",semeur:"« Mais maintenant, par votre union avec Jésus-Christ, vous qui, autrefois, étiez loin de Dieu, vous en êtes devenus proches par le sacrifice du Christ. »"},
+      {ref:"Hébreux 4.16",lsg21:"« Approchons-nous donc avec assurance du trône de la grâce, afin d'obtenir miséricorde et de trouver grâce, pour être secourus dans le moment opportun. »",semeur:"« Approchons-nous donc du trône de la grâce avec une pleine assurance, afin d'obtenir compassion et de trouver la grâce nécessaire pour être secourus au bon moment. »"}
+    ]}
+  ],
+  proclamations:[
+    "Par le sang de Jésus, j'ai été racheté de la main de Satan. Tous mes péchés sont pardonnés.",
+    "Pendant que je marche dans la lumière, le sang de Jésus me purifie, maintenant et continuellement, de tout péché.",
+    "Par le sang de Jésus, je suis justifié, acquitté, non coupable, rendu juste — comme si je n'avais jamais péché.",
+    "Mon corps est le temple du Saint-Esprit, racheté, purifié, sanctifié par le sang de Jésus. Le diable n'a aucune place en moi et aucun pouvoir sur moi. Mon corps est pour le Seigneur et le Seigneur est pour mon corps.",
+    "Seigneur Jésus, quand je reçois Ton sang, je reçois Ta vie — divine, éternelle, sans fin.",
+    "Merci, Seigneur, que même quand je ne peux pas prier, Ton sang plaide pour moi dans les cieux.",
+    "Par le sang de Jésus aspergé dans les cieux, j'ai accès avec confiance dans la présence de Dieu, dans le Très-Saint."
+  ]
+},
+// ─── ONGLET 6: PROVISION DIVINE ───
+{
+  id:"provision", short:"Provision divine",
+  full:"Dieu pourvoit aux besoins de ses enfants",
+  sections:[
+    {title:"Le principe fondamental : Dieu est le pourvoyeur", verses:[
+      {ref:"Philippiens 4.19",lsg21:"« Et mon Dieu pourvoira à tous vos besoins conformément à sa richesse, avec gloire, en Jésus-Christ. »",semeur:"« Et mon Dieu subviendra pleinement à tous vos besoins ; il le fera selon sa glorieuse richesse qui se manifeste en Jésus-Christ. »"},
+      {ref:"Psaume 23.1",lsg21:"« L'Éternel est mon berger : je ne manquerai de rien. »",semeur:"« L'Éternel est mon berger. Je ne manquerai de rien. »"},
+      {ref:"Psaume 34.11",lsg21:"« Les lionceaux éprouvent la disette et la faim, mais ceux qui cherchent l'Éternel ne sont privés d'aucun bien. »",semeur:"« Les jeunes lions connaissent la misère et la faim, mais ceux qui cherchent l'Éternel ne seront privés d'aucun bien. »"},
+      {ref:"Matthieu 6.31-33",lsg21:"« Ne vous inquiétez donc pas et ne dites pas : « Que mangerons-nous ? Que boirons-nous ? Avec quoi nous habillerons-nous ? » car tout cela, ce sont les membres des autres peuples qui le recherchent. Or, votre Père céleste sait que vous en avez besoin. Recherchez d'abord le royaume et la justice de Dieu, et tout cela vous sera donné en plus. »",semeur:"« Ne vous inquiétez donc pas et ne dites pas : « Que mangerons-nous ? » ou : « Que boirons-nous ? » ou : « Avec quoi nous habillerons-nous ? » Toutes ces choses, les païens s'en préoccupent sans cesse. Mais votre Père, qui est dans les cieux, sait que vous en avez besoin. Faites donc du règne de Dieu et de ce qui est juste à ses yeux votre préoccupation première, et toutes ces choses vous seront données en plus. »"}
+    ]},
+    {title:"L'abondance promise, non la simple survie", verses:[
+      {ref:"2 Corinthiens 9.8",lsg21:"« Et Dieu peut vous combler de toutes ses grâces afin que, possédant toujours à tout égard de quoi satisfaire à tous vos besoins, vous ayez encore en abondance pour toute œuvre bonne. »",semeur:"« Et Dieu est assez puissant pour vous combler de toutes sortes de bienfaits, afin que, possédant toujours en toute chose de quoi satisfaire à tous vos besoins, vous ayez encore en abondance pour toute œuvre bonne. »"},
+      {ref:"2 Corinthiens 8.9",lsg21:"« En effet, vous connaissez la grâce de notre Seigneur Jésus-Christ : pour vous il s'est fait pauvre alors qu'il était riche, afin que par sa pauvreté vous soyez enrichis. »",semeur:"« Car vous connaissez la grâce de notre Seigneur Jésus-Christ : lui qui était riche, il s'est fait pauvre pour vous afin que, par sa pauvreté, vous soyez enrichis. »"},
+      {ref:"3 Jean 2",lsg21:"« Bien-aimé, je souhaite que tu prospères à tout point de vue et sois en bonne santé, à l'image de ton âme. »",semeur:"« Cher ami, je souhaite que tu prospères à tous égards et que tu sois en aussi bonne santé physique que tu l'es spirituellement. »"},
+      {ref:"Psaume 35.27",lsg21:"« Qu'ils aient des cris de joie et d'allégresse, ceux qui prennent plaisir à la justice de leur serviteur, et qu'ils disent sans cesse : « Que l'Éternel soit célébré, lui qui prend plaisir à la prospérité de son serviteur ! » »",semeur:"« Mais que ceux qui prennent plaisir à mon droit reconnu poussent des cris de joie. Et qu'ils disent sans cesse : « L'Éternel est grand, lui qui veut le bonheur de son serviteur ! » »"}
+    ]},
+    {title:"Les conditions : semence, dîme et générosité", verses:[
+      {ref:"Malachie 3.10",lsg21:"« Apportez toutes les dîmes à la maison du trésor, afin qu'il y ait de la nourriture dans ma maison. Mettez-moi ainsi à l'épreuve, dit l'Éternel des armées, et vous verrez si je n'ouvre pas pour vous les écluses du ciel, si je ne déverse pas sur vous la bénédiction en abondance. »",semeur:"« Apportez donc vos dîmes dans leur totalité dans le trésor du Temple pour qu'il y ait des vivres dans mon temple. Mettez-moi à l'épreuve de cette manière-là, dit l'Éternel, le Seigneur des armées célestes, et vous verrez bien si je n'ouvre pas pour vous les écluses des cieux, et si je ne déverse pas sur vous ma bénédiction en abondance. »"},
+      {ref:"Luc 6.38",lsg21:"« Donnez et l'on vous donnera : on versera dans le pan de votre vêtement une bonne mesure, bien tassée, secouée et qui déborde, car on utilisera pour vous la même mesure que celle dont vous vous serez servis. »",semeur:"« Donnez, et l'on vous donnera : on versera dans le pan de votre vêtement une bonne mesure bien tassée, secouée et débordante ; car on emploiera, à votre égard, la mesure dont vous vous serez servis pour mesurer. »"},
+      {ref:"Proverbes 3.9-10",lsg21:"« Honore l'Éternel avec tes biens et avec les prémices de tout ton revenu : alors tes greniers seront remplis d'abondance et tes cuves regorgeront de vin nouveau. »",semeur:"« Honore l'Éternel en lui donnant une part de tes biens, en lui offrant les prémices de tous tes revenus. Alors tes greniers regorgeront de blé, et tes cuves déborderont de vin nouveau. »"},
+      {ref:"2 Corinthiens 9.6-7",lsg21:"« Sachez-le, celui qui sème peu moissonnera peu et celui qui sème abondamment moissonnera abondamment. Que chacun donne comme il l'a décidé dans son cœur, sans regret ni contrainte, car Dieu aime celui qui donne avec joie. »",semeur:"« N'oubliez pas ceci : celui qui sème peu, moissonnera peu ; celui qui sème en abondance, moissonnera en abondance. Que chacun donne comme il l'a résolu en son cœur, sans regret ni contrainte ; car Dieu aime celui qui donne avec joie. »"}
+    ]},
+    {title:"La puissance de produire la richesse", verses:[
+      {ref:"Deutéronome 8.18",lsg21:"« Souviens-toi de l'Éternel, ton Dieu, car c'est lui qui te donne de la force pour acquérir des richesses, afin de confirmer, comme il le fait aujourd'hui, son alliance qu'il a jurée à tes ancêtres. »",semeur:"« Souviens-toi de l'Éternel ton Dieu, car c'est lui qui te donne la force de parvenir à la prospérité, pour accomplir l'alliance qu'il a conclue par serment avec tes ancêtres, comme il le fait aujourd'hui. »"},
+      {ref:"Proverbes 10.22",lsg21:"« C'est la bénédiction de l'Éternel qui enrichit, et il ne la fait suivre d'aucun chagrin. »",semeur:"« C'est la bénédiction de l'Éternel qui enrichit, et le tourment n'y ajoute rien. »"},
+      {ref:"Josué 1.8",lsg21:"« Que ce livre de la loi ne s'éloigne pas de ta bouche. Médite-le jour et nuit pour agir fidèlement selon tout ce qui y est écrit, car c'est alors que tu auras du succès dans tes entreprises, c'est alors que tu réussiras. »",semeur:"« Que ce livre de la Loi soit toujours sur tes lèvres. Médite-le jour et nuit afin de veiller à agir selon tout ce qui y est écrit, car alors tu mèneras à bien tes projets et tu réussiras. »"},
+      {ref:"Psaume 1.1-3",lsg21:"« Heureux l'homme qui ne suit pas le conseil des méchants, qui ne s'arrête pas sur la voie des pécheurs et ne s'assied pas en compagnie des moqueurs, mais qui trouve son plaisir dans la loi de l'Éternel et la médite jour et nuit ! Il est comme un arbre planté près d'un courant d'eau, qui donne son fruit en sa saison et dont le feuillage ne se flétrit pas : tout ce qu'il fait lui réussit. »",semeur:"« Heureux l'homme qui ne marche pas selon les conseils des méchants, qui ne va pas se tenir sur le chemin de ceux qui se détournent de Dieu, et qui ne s'assied pas en compagnie des moqueurs, mais qui, au contraire, trouve son plaisir dans la loi de l'Éternel et la médite jour et nuit. Il sera comme un arbre planté près d'un cours d'eau, qui donne ses fruits en sa saison et dont les feuilles ne se flétrissent pas : tout ce qu'il fait réussit. »"}
+    ]},
+    {title:"La promesse héritée : bénédiction d'Abraham", verses:[
+      {ref:"Galates 3.13-14",lsg21:"« Christ nous a rachetés de la malédiction de la loi en devenant malédiction pour nous, puisqu'il est écrit : Tout homme pendu au bois est maudit. C'est ainsi qu'en Jésus-Christ la bénédiction d'Abraham parvient aux non-Juifs et que nous recevons par la foi l'Esprit qui avait été promis. »",semeur:"« Mais le Christ nous a rachetés de la malédiction de la Loi en prenant la malédiction sur lui à notre place. Il est, en effet, écrit : Maudit est quiconque est pendu au bois. Ainsi, en Jésus-Christ, la bénédiction promise à Abraham devait s'étendre à tous les peuples, et nous avons reçu, par la foi, l'Esprit que Dieu avait promis. »"},
+      {ref:"Genèse 12.2",lsg21:"« Je ferai de toi une grande nation, je te bénirai, je rendrai ton nom grand et tu seras une source de bénédiction. »",semeur:"« Je ferai de toi une grande nation ; je te bénirai et je rendrai ton nom grand. Tu seras une source de bénédiction. »"},
+      {ref:"Psaume 112.1-3",lsg21:"« Louez l'Éternel ! Heureux l'homme qui craint l'Éternel, qui trouve un grand plaisir à ses commandements. Sa descendance sera puissante sur la terre ; la génération des hommes droits sera bénie. Il y a gloire et richesse dans sa maison, et sa justice subsiste à jamais. »",semeur:"« Louez l'Éternel ! Heureux l'homme qui révère l'Éternel et qui prend un grand plaisir à ses commandements. Ses descendants seront puissants sur la terre ; la postérité des hommes droits sera bénie. Il y a gloire et richesse dans sa maison, et sa justice subsiste à jamais. »"},
+      {ref:"Deutéronome 28.11-12",lsg21:"« L'Éternel te comblera de biens en multipliant le fruit de ton corps, le fruit de tes troupeaux et le fruit de ton sol dans le pays que l'Éternel a juré à tes ancêtres de te donner. L'Éternel t'ouvrira son bon trésor, le ciel, pour envoyer au moment voulu la pluie sur ton pays et pour bénir tout le travail de tes mains. »",semeur:"« L'Éternel te comblera de biens en rendant féconds tes enfants, les petits de ton bétail et les produits de ton sol, dans le pays qu'il a juré à tes ancêtres de te donner. L'Éternel t'ouvrira son bon trésor, le ciel, pour envoyer en temps voulu la pluie qu'il faut à ton pays et pour bénir tout le travail de tes mains. »"}
+    ]}
+  ],
+  proclamations:[
+    "Mon Dieu pourvoit à tous mes besoins selon sa richesse, avec gloire, en Jésus-Christ. Je ne manque de rien car l'Éternel est mon berger.",
+    "Je suis enrichi par la grâce de Jésus-Christ qui s'est fait pauvre pour moi. L'abondance est mon héritage, non la simple survie. Dieu prend plaisir à la prospérité de son serviteur.",
+    "Je sème avec joie et je moissonne avec abondance, car Dieu aime celui qui donne avec joie et il me comble de toutes ses grâces.",
+    "C'est l'Éternel qui me donne la force d'acquérir des richesses. Sa bénédiction enrichit et il n'y ajoute aucun chagrin. Je médite sa Parole jour et nuit, et tout ce que je fais réussit.",
+    "En Jésus-Christ, la bénédiction d'Abraham est parvenue jusqu'à moi. Il y a gloire et richesse dans ma maison, et ma justice subsiste à jamais.",
+    "Je recherche d'abord le Royaume et la justice de Dieu, et toutes les choses matérielles me sont données en plus. Mon Père céleste sait ce dont j'ai besoin."
+  ]
+},
+// ─── ONGLET 7: FIDÉLITÉ DE DIEU ───
+{
+  id:"fidelite", short:"Fidélité de Dieu",
+  full:"Dieu est fidèle et digne de confiance",
+  sections:[
+    {title:"La fidélité comme attribut essentiel de Dieu", verses:[
+      {ref:"1 Corinthiens 1.9",lsg21:"« Dieu est fidèle, lui qui vous a appelés à vivre en communion avec son Fils, Jésus-Christ notre Seigneur. »",semeur:"« Dieu est fidèle, lui qui vous a appelés à vivre en communion avec son Fils, Jésus-Christ notre Seigneur. »"},
+      {ref:"1 Thessaloniciens 5.24",lsg21:"« Celui qui vous a appelés est fidèle, et c'est lui qui le fera. »",semeur:"« Car celui qui vous appelle est fidèle : c'est lui qui accomplira tout cela. »"},
+      {ref:"2 Thessaloniciens 3.3",lsg21:"« Le Seigneur est fidèle, il vous affermira et vous protégera du mal. »",semeur:"« Mais le Seigneur est fidèle ; il vous affermira et vous gardera du Mauvais. »"},
+      {ref:"2 Timothée 2.13",lsg21:"« Si nous sommes infidèles, il reste fidèle, car il ne peut se renier lui-même. »",semeur:"« Si nous sommes infidèles, lui reste fidèle, car il ne peut se renier lui-même. »"},
+      {ref:"Lamentations 3.22-23",lsg21:"« Les bontés de l'Éternel ne sont pas épuisées, ses compassions ne prennent pas fin ; elles se renouvellent chaque matin. Que ta fidélité est grande ! »",semeur:"« Les bontés de l'Éternel ne sont pas épuisées, il n'est pas au bout de son amour ; chaque matin, ses bontés se renouvellent. Oui, ta fidélité est grande ! »"}
+    ]},
+    {title:"Sa Parole ne faillit jamais", verses:[
+      {ref:"Nombres 23.19",lsg21:"« Dieu n'est pas un homme pour mentir, ni le fils d'un homme pour revenir sur sa décision. Ce qu'il a dit, ne le fera-t-il pas ? Ce qu'il a déclaré, ne l'accomplira-t-il pas ? »",semeur:"« Dieu n'est pas un homme pour mentir, il n'est pas un être humain pour changer d'avis. Ce qu'il a dit, ne le fera-t-il pas ? Ce qu'il a déclaré, ne le réalisera-t-il pas ? »"},
+      {ref:"Ésaïe 55.10-11",lsg21:"« Tout comme la pluie et la neige descendent du ciel et n'y retournent pas sans avoir arrosé la terre, sans l'avoir fécondée et fait germer, sans avoir donné de la semence au semeur et du pain à celui qui mange, ma parole, qui sort de ma bouche, ne retournera pas à moi sans effet, sans avoir fait ce que je désire et sans avoir réalisé l'objectif pour lequel je l'ai envoyée. »",semeur:"« La pluie et la neige descendent du ciel, et elles n'y retournent pas sans avoir arrosé la terre, sans l'avoir fécondée et fait germer les graines, sans avoir donné de la semence au semeur et du pain à celui qui mange. Il en est de même de la parole qui sort de ma bouche : elle ne retourne pas vers moi sans avoir produit d'effet, sans avoir réalisé ce que je voulais, sans avoir atteint le but que je lui avais fixé. »"},
+      {ref:"Psaume 33.4",lsg21:"« Car la parole de l'Éternel est droite et toute son œuvre s'accomplit avec fidélité. »",semeur:"« Car la parole de l'Éternel est droite et tout ce qu'il fait est sûr. »"},
+      {ref:"Psaume 89.35",lsg21:"« J'ai juré une fois par ma sainteté : mentirais-je à David ? »",semeur:"« J'ai juré par ma sainteté, et ce n'est pas à David que je mentirai. »"},
+      {ref:"Hébreux 6.18",lsg21:"« Afin que, par deux actes irrévocables dans lesquels il est impossible que Dieu mente, nous ayons un puissant encouragement, nous dont le seul refuge a été de saisir l'espérance qui nous était proposée. »",semeur:"« Ainsi, deux actes irrévocables, au sujet desquels il est impossible que Dieu mente, nous apportent un puissant encouragement, à nous dont le seul refuge est de saisir l'espérance qui nous est proposée. »"}
+    ]},
+    {title:"Ses promesses sont toutes accomplies", verses:[
+      {ref:"Josué 21.45",lsg21:"« De toutes les bonnes paroles que l'Éternel avait dites à la maison d'Israël, aucune ne resta sans effet : toutes s'accomplirent. »",semeur:"« De toutes les bonnes promesses que l'Éternel avait faites au peuple d'Israël, aucune ne demeura sans effet : toutes s'accomplirent. »"},
+      {ref:"Josué 23.14",lsg21:"« Je m'en vais maintenant par le chemin commun à toute la terre. Reconnaissez de tout votre cœur et de toute votre âme qu'aucune de toutes les bonnes paroles que l'Éternel, votre Dieu, a prononcées sur vous n'est restée sans effet. Toutes se sont accomplies pour vous, aucune n'est restée sans effet. »",semeur:"« Voici : je m'en vais bientôt par le chemin que tout homme doit prendre un jour. Reconnaissez donc de tout votre cœur et de tout votre être que pas une seule des bonnes paroles que l'Éternel votre Dieu a prononcées en votre faveur n'est restée sans accomplissement. Toutes se sont réalisées pour vous, pas une seule n'est restée sans effet. »"},
+      {ref:"2 Corinthiens 1.20",lsg21:"« En effet, pour ce qui concerne toutes les promesses de Dieu, c'est en lui que se trouve le « oui », et c'est aussi par lui que nous disons « amen » à Dieu, pour sa gloire. »",semeur:"« En effet, c'est en lui que se trouve le « oui » de toutes les promesses de Dieu. Aussi est-ce par lui que nous disons « amen » à Dieu pour sa gloire. »"},
+      {ref:"Hébreux 10.23",lsg21:"« Retenons fermement la confession de notre espérance, car celui qui a fait la promesse est fidèle. »",semeur:"« Continuons à professer notre espérance sans fléchir, car celui qui a fait la promesse est fidèle. »"},
+      {ref:"Psaume 145.13",lsg21:"« Ton règne est un règne éternel et ta domination subsiste de génération en génération. L'Éternel est fidèle dans toutes ses paroles et bienveillant dans toutes ses œuvres. »",semeur:"« Ta royauté est royauté de toujours, ton règne dure d'âge en âge. L'Éternel est fidèle en toutes ses promesses et bienveillant en toutes ses œuvres. »"}
+    ]},
+    {title:"Il ne t'abandonne jamais", verses:[
+      {ref:"Hébreux 13.5-6",lsg21:"« Ne vous laissez pas dominer par l'amour de l'argent ; contentez-vous de ce que vous avez, car Dieu lui-même a dit : Je ne te délaisserai pas et je ne t'abandonnerai pas. C'est donc avec assurance que nous pouvons dire : Le Seigneur est mon secours, je n'aurai peur de rien. Que peut me faire un homme ? »",semeur:"« Que votre conduite ne soit pas guidée par l'amour de l'argent, contentez-vous de ce que vous avez, car Dieu lui-même a dit : Je ne te délaisserai pas et je ne t'abandonnerai pas. Aussi pouvons-nous dire avec assurance : Le Seigneur est celui qui vient à mon secours ; je n'aurai peur de rien. Que pourraient me faire les hommes ? »"},
+      {ref:"Ésaïe 49.15-16",lsg21:"« Une femme oublie-t-elle l'enfant qu'elle allaite ? N'a-t-elle pas compassion du fils qui est sorti de son ventre ? Même si elle l'oubliait, moi je ne t'oublierai jamais. Vois ! Je t'ai gravée sur les paumes de mes mains. »",semeur:"« Une femme oublie-t-elle l'enfant qu'elle nourrit ? Cesse-t-elle d'aimer l'enfant qu'elle a porté ? Même si les mères oubliaient, moi, je ne t'oublierai pas ! Car j'ai gravé ton nom sur les paumes de mes mains. »"},
+      {ref:"Romains 8.38-39",lsg21:"« En effet, j'ai l'assurance que ni la mort ni la vie, ni les anges ni les dominations, ni le présent ni l'avenir, ni les puissances, ni la hauteur, ni la profondeur, ni aucune autre créature ne pourra nous séparer de l'amour de Dieu manifesté en Jésus-Christ notre Seigneur. »",semeur:"« Oui, j'en ai la certitude : ni la mort ni la vie, ni les anges ni les dominations, ni le présent ni l'avenir, ni les puissances, ni ce qui est en haut ni ce qui est en bas, ni aucune autre créature, rien ne pourra nous séparer de l'amour de Dieu manifesté en Jésus-Christ notre Seigneur. »"},
+      {ref:"Deutéronome 31.8",lsg21:"« L'Éternel marchera lui-même devant toi, il sera lui-même avec toi. Il ne te délaissera pas, il ne t'abandonnera pas. N'aie pas peur et ne te laisse pas effrayer. »",semeur:"« L'Éternel marchera lui-même devant toi, il sera avec toi, il ne te délaissera pas et ne t'abandonnera pas ; n'aie pas peur et ne te laisse pas effrayer. »"},
+      {ref:"1 Pierre 5.7",lsg21:"« Déchargez-vous sur lui de tous vos soucis, car lui-même prend soin de vous. »",semeur:"« Déchargez-vous sur lui de tous vos soucis, car il prend soin de vous. »"}
+    ]}
+  ],
+  proclamations:[
+    "Dieu est fidèle, lui qui m'a appelé. Ce qu'il a promis, il le fera. Même si je suis infidèle, il reste fidèle car il ne peut se renier lui-même.",
+    "La Parole de Dieu qui est sortie de sa bouche ne retourne pas à lui sans effet. Ce qu'il a dit, il le fera. Ce qu'il a déclaré, il l'accomplira.",
+    "De toutes les bonnes paroles que l'Éternel a prononcées sur ma vie, aucune ne restera sans effet. Toutes les promesses de Dieu trouvent leur « oui » en Christ.",
+    "L'Éternel ne me délaissera pas et ne m'abandonnera pas. Il m'a gravé sur les paumes de ses mains. Rien ne peut me séparer de son amour. Je décharge sur lui tous mes soucis, car il prend soin de moi."
+  ]
+}
+];
+// =====================================================
+// LOGIQUE APPLICATIVE SÉCURISÉE
+// =====================================================
+let state = {
+  tabIndex: 0,
+  sectionIndex: 0,
+  verseIndex: 0,
+  proclIndex: 0,
+  mode: 'versets', 
+  version: 'lsg21',
+  theme: 'dark',
+  fontSize: 16,
+  history: []
+};
+
+function saveState() {
+  localStorage.setItem('fondements_state', JSON.stringify(state));
+}
+
+function loadState() {
+  const saved = localStorage.getItem('fondements_state');
+  if(saved) {
+    try { state = { ...state, ...JSON.parse(saved) }; } catch(e){}
+  }
+  applyTheme();
+  applyFontSize();
+}
+
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', state.theme === 'light' ? 'light' : '');
+  document.getElementById('themeBtn').textContent = state.theme === 'dark' ? '🌙' : '☀️';
+}
+
+function applyFontSize() {
+  document.documentElement.style.setProperty('--verse-font-size', state.fontSize + 'px');
+}
+
+// GESTION DU MENU LATÉRAL
+const sidebar = document.getElementById('sidebar');
+const menuOverlay = document.getElementById('menuOverlay');
+
+document.getElementById('menuBtn').addEventListener('click', () => {
+  sidebar.classList.add('open');
+  menuOverlay.classList.add('open');
+});
+const closeSidebar = () => {
+  sidebar.classList.remove('open');
+  menuOverlay.classList.remove('open');
+};
+document.getElementById('closeMenuBtn').addEventListener('click', closeSidebar);
+menuOverlay.addEventListener('click', closeSidebar);
+
+// GÉNÉRER LES PILIERS DANS LA SIDEBAR
+function renderSidebarTabs() {
+  const container = document.getElementById('sidebarTabsContainer');
+  if(!container || !TABS_DATA || TABS_DATA.length === 0) return;
+  container.innerHTML = '';
+  
+  TABS_DATA.forEach((tab, index) => {
+    const btn = document.createElement('button');
+    btn.className = `sidebar-tab-btn ${index === state.tabIndex ? 'active' : ''}`;
+    btn.textContent = tab.short;
+    btn.onclick = () => {
+      state.tabIndex = index;
+      state.sectionIndex = 0;
+      state.verseIndex = 0;
+      state.proclIndex = 0;
+      saveState();
+      render();
+      closeSidebar(); // Ferme le menu après le clic
+    };
+    container.appendChild(btn);
+  });
+}
+
+// MOTEUR D'AFFICHAGE PRINCIPAL
+function render() {
+  renderSidebarTabs();
+  
+  const mainContent = document.getElementById('mainContent');
+  if(!TABS_DATA || TABS_DATA.length === 0) {
+    mainContent.innerHTML = "<p style='text-align:center; margin-top:50px; color:#a0a0a0;'>Erreur de chargement des données.</p>";
+    return;
+  }
+
+  const currentTab = TABS_DATA[state.tabIndex];
+  
+  if(state.mode === 'versets') {
+    const currentSection = currentTab.sections[state.sectionIndex];
+    const currentVerse = currentSection.verses[state.verseIndex];
+    const textContent = state.version === 'lsg21' ? currentVerse.lsg21 : currentVerse.semeur;
+    
+    // Calcul progression
+    let totalVerses = 0;
+    currentTab.sections.forEach(s => totalVerses += s.verses.length);
+    let currentProgressIndex = 0;
+    for(let i=0; i<state.sectionIndex; i++) {
+      currentProgressIndex += currentTab.sections[i].verses.length;
+    }
+    currentProgressIndex += (state.verseIndex + 1);
+    const percent = Math.round((currentProgressIndex / totalVerses) * 100);
+
+    mainContent.innerHTML = `
+      <div class="theme-title">${currentTab.full}</div>
+      <div class="section-label">${currentSection.title}</div>
+      <div class="progress-info">
+        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${percent}%"></div></div>
+        <div class="progress-text">${currentProgressIndex}/${totalVerses} (${percent}%)</div>
+      </div>
+      <div class="verse-card">
+        <div class="verse-ref">${currentVerse.ref}</div>
+        <div class="verse-text">${textContent}</div>
+        <div class="version-badge">${state.version.toUpperCase()}</div>
+      </div>
+    `;
+  } else {
+    // Mode Proclamations
+    const currentProcl = currentTab.proclamations[state.proclIndex];
+    const totalProcl = currentTab.proclamations.length;
+    const percent = Math.round(((state.proclIndex + 1) / totalProcl) * 100);
+
+    mainContent.innerHTML = `
+      <div class="theme-title">${currentTab.full}</div>
+      <div class="section-label">Déclaration de Foi</div>
+      <div class="progress-info">
+        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${percent}%"></div></div>
+        <div class="progress-text">${state.proclIndex + 1}/${totalProcl} (${percent}%)</div>
+      </div>
+      <div class="proclamation-card">
+        <div class="proclamation-number">Déclaration ${state.proclIndex + 1}</div>
+        <div class="proclamation-text">${currentProcl}</div>
+      </div>
+    `;
+  }
+
+  // Update Toggles UI
+  document.querySelectorAll('#modeToggle .toggle-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-mode') === state.mode);
+  });
+  document.querySelectorAll('#versionToggle .toggle-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-version') === state.version);
+  });
+}
+
+// LOGIQUE NAVIGATION
+function markAsRead() {
+  if(!TABS_DATA || TABS_DATA.length === 0) return;
+  const currentTab = TABS_DATA[state.tabIndex];
+  state.history.push({ tab: state.tabIndex, type: state.mode, date: new Date().toISOString() });
+
+  if(state.mode === 'versets') {
+    state.verseIndex++;
+    if(state.verseIndex >= currentTab.sections[state.sectionIndex].verses.length) {
+      state.verseIndex = 0;
+      state.sectionIndex++;
+      if(state.sectionIndex >= currentTab.sections.length) {
+        state.sectionIndex = 0;
+        showToast("🎉 Pilier de versets terminé !");
+      }
+    }
+  } else {
+    state.proclIndex++;
+    if(state.proclIndex >= currentTab.proclamations.length) {
+      state.proclIndex = 0;
+      showToast("📢 Proclamations terminées !");
+    }
+  }
+  saveState();
+  render();
+}
+
+function peekPrev() {
+  if(!TABS_DATA || TABS_DATA.length === 0) return;
+  if(state.mode === 'versets') {
+    if(state.verseIndex > 0) state.verseIndex--;
+    else if(state.sectionIndex > 0) {
+      state.sectionIndex--;
+      state.verseIndex = TABS_DATA[state.tabIndex].sections[state.sectionIndex].verses.length - 1;
+    }
+  } else {
+    if(state.proclIndex > 0) state.proclIndex--;
+  }
+  saveState();
+  render();
+}
+
+function peekNext() {
+  if(!TABS_DATA || TABS_DATA.length === 0) return;
+  const currentTab = TABS_DATA[state.tabIndex];
+  
+  if(state.mode === 'versets') {
+    state.verseIndex++;
+    if(state.verseIndex >= currentTab.sections[state.sectionIndex].verses.length) {
+      state.verseIndex = 0;
+      state.sectionIndex++;
+      if(state.sectionIndex >= currentTab.sections.length) {
+        // Arrivé à la fin des versets : on redémarre à zéro
+        state.sectionIndex = 0; 
+        state.verseIndex = 0; 
+      }
+    }
+  } else {
+    state.proclIndex++;
+    // Arrivé à la fin des proclamations : on redémarre à zéro
+    if(state.proclIndex >= currentTab.proclamations.length) {
+      state.proclIndex = 0; 
+    }
+  }
+  saveState();
+  render();
+}
+
+// ÉVÉNEMENTS BOUTONS (A-, A+, Thème, Mode, Lecture)
+function init() {
+  loadState();
+  
+  // Font Size
+  document.getElementById('fontIncBtn').addEventListener('click', () => {
+    if(state.fontSize < 30) { state.fontSize += 2; saveState(); applyFontSize(); }
+  });
+  document.getElementById('fontDecBtn').addEventListener('click', () => {
+    if(state.fontSize > 12) { state.fontSize -= 2; saveState(); applyFontSize(); }
+  });
+
+  // Theme
+  document.getElementById('themeBtn').addEventListener('click', () => {
+    state.theme = state.theme === 'dark' ? 'light' : 'dark';
+    saveState();
+    applyTheme();
+  });
+
+  // Toggles
+  document.querySelectorAll('#modeToggle .toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => { state.mode = btn.getAttribute('data-mode'); saveState(); render(); });
+  });
+  document.querySelectorAll('#versionToggle .toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => { state.version = btn.getAttribute('data-version'); saveState(); render(); });
+  });
+
+  // Navigation actions
+  document.getElementById('readBtn').addEventListener('click', markAsRead);
+  document.getElementById('prevBtn').addEventListener('click', peekPrev);
+  document.getElementById('nextBtn').addEventListener('click', peekNext);
+  
+  // Stats
+  document.getElementById('statsBtn').addEventListener('click', showStats);
+
+  // Swipe support
+  let touchStartX = 0;
+  const mc = document.getElementById('mainContent');
+  mc.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive:true});
+  mc.addEventListener('touchend', e => {
+    const diff = e.changedTouches[0].screenX - touchStartX;
+    if (Math.abs(diff) > 80) { if (diff < 0) markAsRead(); else peekPrev(); }
+  }, {passive:true});
+
+  // Premier rendu
+  render();
+}
+
+// TOAST ET MODAL STATS
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function showStats() {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal">
+      <h3>Statistiques</h3>
+      <div class="modal-item"><span>Méditations lues</span><strong>${state.history.length} ✨</strong></div>
+      <button class="modal-close" id="closeStatsBtn">Fermer</button>
+      <button class="reset-link" id="resetBtn">Réinitialiser la progression</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  
+  document.getElementById('closeStatsBtn').addEventListener('click', () => overlay.remove());
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    if(confirm("Remettre à zéro la progression ?")) {
+      state.history = []; state.sectionIndex = 0; state.verseIndex = 0; state.proclIndex = 0;
+      saveState(); render(); overlay.remove(); showToast("Réinitialisé !");
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

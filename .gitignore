@@ -1,0 +1,17 @@
+# Dossier interne Claude Code (ne pas versionner)
+.claude/
+
+# Artefacts Windows
+Thumbs.db
+desktop.ini
+*.lnk
+
+# Éditeurs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs & temporaires
+*.log
+tmp/

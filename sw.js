@@ -1,5 +1,7 @@
 // Bumper la version à chaque déploiement pour déclencher la mise à jour côté client
-const CACHE_NAME = 'fondements-v2';
+const CACHE_NAME = 'fondements-v3';
+const FONTS_CACHE = 'fondements-fonts-v1';
+
 const ASSETS = [
   './',
   './index.html',
@@ -16,21 +18,47 @@ self.addEventListener('install', e => {
 });
 
 self.addEventListener('activate', e => {
+  const keepCaches = [CACHE_NAME, FONTS_CACHE];
   e.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+      Promise.all(keys.filter(k => !keepCaches.includes(k)).map(k => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
 });
 
-// Stratégie : network-first pour le HTML (pour récupérer vite les MAJ), cache-first pour le reste
+function isGoogleFont(url) {
+  return url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com';
+}
+
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
 
+  let url;
+  try { url = new URL(req.url); } catch { return; }
+
+  // Google Fonts : stale-while-revalidate
+  // Première visite en ligne → téléchargées et mises en cache
+  // Hors ligne → servies depuis le cache
+  if (isGoogleFont(url)) {
+    e.respondWith(
+      caches.open(FONTS_CACHE).then(cache =>
+        cache.match(req).then(cached => {
+          const network = fetch(req).then(res => {
+            if (res && res.status === 200) cache.put(req, res.clone());
+            return res;
+          }).catch(() => cached);
+          return cached || network;
+        })
+      )
+    );
+    return;
+  }
+
   const isHTML = req.mode === 'navigate' ||
                  (req.headers.get('accept') || '').includes('text/html');
 
+  // HTML : network-first (pour détecter vite les MAJ), fallback cache
   if (isHTML) {
     e.respondWith(
       fetch(req)
@@ -44,12 +72,15 @@ self.addEventListener('fetch', e => {
     return;
   }
 
+  // Autres assets locaux : cache-first
   e.respondWith(
     caches.match(req).then(r => r || fetch(req).then(res => {
-      const copy = res.clone();
-      caches.open(CACHE_NAME).then(c => c.put(req, copy));
+      if (res && res.status === 200 && url.origin === self.location.origin) {
+        const copy = res.clone();
+        caches.open(CACHE_NAME).then(c => c.put(req, copy));
+      }
       return res;
-    }))
+    }).catch(() => r))
   );
 });
 
